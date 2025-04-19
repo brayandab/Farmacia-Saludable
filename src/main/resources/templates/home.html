@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Inicio</title>
+</head>
+<body>
+<h1>Bienvenido</h1>
+<p>Nombre: <strong th:text="${user.attributes['name']}"></strong></p>
+<p>Correo: <strong th:text="${user.attributes['email']}"></strong></p>
+<p>ID: <strong th:text="${user.attributes['sub']}"></strong></p>
+
+<p><a href="/logout">Cerrar sesión</a></p>
+</body>
+</html>

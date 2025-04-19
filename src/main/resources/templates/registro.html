@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Registro de Usuario</title>
+</head>
+<body>
+<h2>Formulario de Registro</h2>
+
+<form action="/basico" method="POST">
+    <label for="nombre">Nombre:</label>
+    <input type="text" id="nombre" name="nombre" required><br><br>
+
+    <label for="apellido">Apellido:</label>
+    <input type="text" id="apellido" name="apellido" required><br><br>
+
+    <label for="correo">Correo:</label>
+    <input type="email" id="correo" name="correo" required><br><br>
+
+    <label for="contraseña">Contraseña:</label>
+    <input type="password" id="contraseña" name="contraseña" required><br><br>
+
+    <button type="submit">Registrar</button>
+</form>
+
+<p>¿Ya tienes cuenta? <a href="/login/oauth2/authorization/google">Iniciar sesión con Google</a></p>
+</body>
+</html>
