@@ -1,13 +1,9 @@
 package com.farmacia.farmacia.saludable.entities;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import java.time.LocalDate;
 
 @Entity
 @Table(name = "pacientes")
-
 public class Paciente {
 
     @Id
@@ -16,8 +12,6 @@ public class Paciente {
 
     @OneToOne
     @JoinColumn(name = "id_usuario", referencedColumnName = "idUsuario")
-    //@JsonIgnore
-    //@JsonBackReference
     private Usuario usuario;
 
     private String historialMedico;
@@ -25,9 +19,7 @@ public class Paciente {
     private String medicamentosRecetados;
     private String otraInformacionRelevante;
 
-
-    // getters y setters
-
+    // Getters y Setters
 
     public Integer getIdPaciente() {
         return idPaciente;

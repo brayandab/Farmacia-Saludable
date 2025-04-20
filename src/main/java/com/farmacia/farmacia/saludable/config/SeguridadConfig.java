@@ -13,17 +13,31 @@ public class SeguridadConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .authorizeHttpRequests(authorizeRequests ->
-                        authorizeRequests
-                                .requestMatchers("/", "/registro", "/basico", "/api/usuarios","/api/usuarios/**","/api/productos/**","/api/pacientes/**","/registroCompleto/**")  // Permite acceso sin autenticación a estas rutas
-                                .permitAll()
-                                .anyRequest()
-                                .authenticated()  // El resto requiere autenticación
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/",
+                                "/registro",
+                                "/basico**",
+                                "/api/usuarios",
+                                "/api/usuarios/**",
+                                "/api/productos",
+                                "/api/productos/**",
+                                "/api/pacientes",
+                                "/api/pacientes/**",
+                                "/registroCompleto/**",
+                                "/swagger-ui/**",
+                                "/v2/api-docs",
+                                "/v3/api-docs/**",
+                                "/swagger-resources/**",
+                                "/api/usuarios/crear",
+                                "/api/productos/crear"
+                        ).permitAll()
+                        .anyRequest().authenticated()
                 )
-                .oauth2Login(oauth2Login ->
-                        oauth2Login
-                                .defaultSuccessUrl("/home", true)  // Página de éxito después de iniciar sesión con Google
-                                .failureUrl("/login?error=true")  // Página de error
+                .csrf(csrf -> csrf.disable()) // para evitar errores CSRF en Postman
+                .oauth2Login(oauth2 -> oauth2
+                        .defaultSuccessUrl("/home", true)
+                        .failureUrl("/login?error=true")
                 );
 
         return http.build();

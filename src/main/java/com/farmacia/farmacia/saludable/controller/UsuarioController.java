@@ -1,7 +1,10 @@
 package com.farmacia.farmacia.saludable.controller;
 
 import com.farmacia.farmacia.saludable.dto.RegistroDTO;
+import com.farmacia.farmacia.saludable.dto.UsuarioPacienteDTO;
+import com.farmacia.farmacia.saludable.entities.Paciente;
 import com.farmacia.farmacia.saludable.entities.Usuario;
+import com.farmacia.farmacia.saludable.repository.PacienteRepository;
 import com.farmacia.farmacia.saludable.repository.UsuarioRepository;
 import com.farmacia.farmacia.saludable.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +20,9 @@ import java.util.List;
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
-    private final UsuarioRepository usuarioRepository;  // Inyectar el repositorio
+    private final UsuarioRepository usuarioRepository;
+    @Autowired
+    private PacienteRepository pacienteRepository;
 
     @Autowired
     public UsuarioController(UsuarioService usuarioService, UsuarioRepository usuarioRepository) {
@@ -32,7 +37,7 @@ public class UsuarioController {
         return new ResponseEntity<>(usuarios, HttpStatus.OK);
     }
 
-    @PostMapping("/crear")
+    @PostMapping("/crear-simple")
     public ResponseEntity<Usuario> crearUsuario(@RequestBody RegistroDTO request) {
         // Aquí se puede tener la lógica para crear un nuevo usuario
         Usuario usuario = new Usuario();
@@ -45,6 +50,26 @@ public class UsuarioController {
 
         Usuario guardado = usuarioRepository.save(usuario);
         return new ResponseEntity<>(guardado, HttpStatus.CREATED);
+    }
+
+    @PostMapping("/crear")
+    public ResponseEntity<?> crearUsuarioConPaciente(@RequestBody UsuarioPacienteDTO request) {
+        Usuario usuario = request.getUsuario();
+        Paciente paciente = request.getPaciente();
+
+        // Asignamos valores al usuario
+        usuario.setFechaRegistro(LocalDateTime.now());
+
+        // Guardamos el usuario primero
+        Usuario usuarioGuardado = usuarioRepository.save(usuario);
+
+        // Solo guardamos el paciente si el rol es cliente
+        if ("cliente".equalsIgnoreCase(usuario.getRol())) {
+            paciente.setUsuario(usuarioGuardado); // relación con usuario
+            pacienteRepository.save(paciente);
+        }
+
+        return new ResponseEntity<>(usuarioGuardado, HttpStatus.CREATED);
     }
 
     // Registro completo (con datos adicionales)
