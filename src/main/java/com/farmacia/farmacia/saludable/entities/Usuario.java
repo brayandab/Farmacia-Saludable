@@ -24,7 +24,7 @@ public class Usuario {
     private String telefono;
     private String direccion;
     private LocalDateTime fechaRegistro;
-
+    private String tipoSangre;
     @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL)
     @JsonIgnore
     @JsonManagedReference
@@ -119,6 +119,14 @@ public class Usuario {
 
     public void setFechaRegistro(LocalDateTime fechaRegistro) {
         this.fechaRegistro = fechaRegistro;
+    }
+
+    public String getTipoSangre() {
+        return tipoSangre;
+    }
+
+    public void setTipoSangre(String tipoSangre) {
+        this.tipoSangre = tipoSangre;
     }
 
     public Paciente getPaciente() {

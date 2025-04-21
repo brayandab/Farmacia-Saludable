@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Completar Registro</title>
+</head>
+<body>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Registro Exitoso</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            text-align: center;
+            padding-top: 50px;
+        }
+
+        .card {
+            background-color: white;
+            max-width: 500px;
+            margin: auto;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        h1 {
+            color: #2e7d32;
+        }
+
+        p {
+            font-size: 18px;
+        }
+
+        a {
+            margin-top: 20px;
+            display: inline-block;
+            text-decoration: none;
+            color: white;
+            background-color: #2e7d32;
+            padding: 10px 20px;
+            border-radius: 6px;
+        }
+
+        a:hover {
+            background-color: #1b5e20;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h1>🎉 ¡Registro Completado!</h1>
+    <p>Gracias por registrarte, <strong th:text="${nombre}"></strong></p>
+    <p>Te hemos registrado con el correo: <strong th:text="${correo}"></strong></p>
+    <a href="/logout">
+        <button class="btn btn-success">Ir al Inicio</button>
+    </a>
+
+</div>
+</body>
+</html>
+
+</body>
+</html>

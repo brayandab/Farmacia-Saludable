@@ -38,6 +38,12 @@ public class SeguridadConfig {
                 .oauth2Login(oauth2 -> oauth2
                         .defaultSuccessUrl("/home", true)
                         .failureUrl("/login?error=true")
+                )
+                .logout(logout -> logout
+                        .logoutSuccessUrl("/") // redirige al inicio tras logout
+                        .invalidateHttpSession(true)
+                        .clearAuthentication(true)
+                        .deleteCookies("JSESSIONID")
                 );
 
         return http.build();

@@ -10,8 +10,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
+
 
 @Controller
 public class InicioController {
@@ -20,26 +23,47 @@ public class InicioController {
     private UsuarioRepository usuarioRepository;
 
     @GetMapping("/")
-    public String mostrarRegistro() {
-        return "registro"; // Esta es la vista HTML de registro
+    public String mostrarRegistro(@RequestParam(required = false) String error,
+                                  org.springframework.ui.Model model) {
+        if ("correo_existente".equals(error)) {
+            model.addAttribute("correoExistente", true);
+        }
+        return "registro";
     }
 
-    // Paso 1: Registrar los datos básicos
+
     @PostMapping("/basico")
-    public String registrarPasoBasico(@RequestBody RegistroDTO datos) {
+    public String registrarPasoBasico(@RequestParam String nombre,
+                                      @RequestParam String apellido,
+                                      @RequestParam String correo,
+                                      @RequestParam String contraseña) {
+
+        System.out.println("Nombre recibido: " + nombre);
+        System.out.println("Apellido recibido: " + apellido);
+        System.out.println("Correo recibido: " + correo);
+        System.out.println("Contraseña recibida: " + contraseña);
+
+        Optional<Usuario> existente = usuarioRepository.findByCorreo(correo);
+
+        if (existente.isPresent()) {
+            System.out.println("El correo ya está registrado: " + correo);
+            return "redirect:/?error=correo_existente";
+        }
+
         Usuario usuario = new Usuario();
-        usuario.setNombre(datos.getNombre());
-        usuario.setApellido(datos.getApellido());
-        usuario.setCorreo(datos.getCorreo());
-        usuario.setContraseña(datos.getContraseña());
-        usuario.setRol("cliente"); // siempre cliente
+        usuario.setNombre(nombre);
+        usuario.setApellido(apellido);
+        usuario.setCorreo(correo);
+        usuario.setContraseña(contraseña);
+        usuario.setRol("cliente");
         usuario.setFechaRegistro(LocalDateTime.now());
 
-        // Guardar al usuario en la base de datos
         usuarioRepository.save(usuario);
 
-        // Redirigir a la segunda parte del formulario
-        return "redirect:/registroCompleto"; // Aquí se redirige a la página para completar el resto de los datos
+        System.out.println("Usuario registrado exitosamente: " + usuario.getCorreo());
+
+        return "redirect:/login/oauth2/authorization/google";
     }
+
 
 }

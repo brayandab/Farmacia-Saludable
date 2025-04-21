@@ -1,15 +1,131 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Inicio</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f8ff;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 30px auto;
+            padding: 30px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        p {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        strong {
+            color: #2980b9;
+        }
+
+        form label {
+            display: block;
+            margin: 15px 0 5px;
+        }
+
+        form input, form select, form textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 12px 20px;
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #219150;
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 20px;
+            text-align: center;
+            width: 100%;
+            color: #e74c3c;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
-<h1>Bienvenido Usuarios:</h1>
-<p>Nombre: <strong th:text="${user.attributes['name']}"></strong></p>
-<p>Correo: <strong th:text="${user.attributes['email']}"></strong></p>
-<p>ID: <strong th:text="${user.attributes['sub']}"></strong></p>
+<div class="container">
+    <h1>Bienvenido</h1>
+    <p>Nombre: <strong th:text="${user.attributes['name']}"></strong></p>
+    <p>Correo: <strong th:text="${user.attributes['email']}"></strong></p>
+    <p>ID: <strong th:text="${user.attributes['sub']}"></strong></p>
 
-<p><a href="/logout">Cerrar sesión</a></p>
+    <h1>Completa tu Registro</h1>
+    <form action="/registroCompleto" method="post">
+        <!-- Datos del usuario -->
+        <label>Fecha de Nacimiento:</label>
+        <input type="date" name="usuario.fechaNacimiento" required>
+
+        <label>Género:</label>
+        <select name="usuario.genero" required>
+            <option value="" disabled selected>Seleccionar</option>
+            <option value="Masculino">Masculino</option>
+            <option value="Femenino">Femenino</option>
+            <option value="Otro">Otro</option>
+        </select>
+
+
+        <label>Teléfono:</label>
+        <input type="text" name="usuario.telefono" required>
+
+        <label>Dirección:</label>
+        <input type="text" name="usuario.direccion" required>
+
+        <label>Tipo de Sangre:</label>
+        <input type="text" name="usuario.tipoSangre">
+
+        <!-- Datos de la entidad Paciente -->
+        <label>Historial Médico:</label>
+        <textarea name="paciente.historialMedico" rows="3"></textarea>
+
+        <label>Alergias:</label>
+        <textarea name="paciente.alergias" rows="3"></textarea>
+
+        <label>Medicamentos Recetados:</label>
+        <textarea name="paciente.medicamentosRecetados" rows="3"></textarea>
+
+        <label>Otra Información Relevante:</label>
+        <textarea name="paciente.otraInformacionRelevante" rows="3"></textarea>
+
+        <button type="submit">Finalizar Registro</button>
+    </form>
+
+    <a href="/logout">Cerrar sesión</a>
+</div>
 </body>
 </html>

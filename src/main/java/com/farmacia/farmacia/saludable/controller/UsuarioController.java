@@ -1,17 +1,17 @@
 package com.farmacia.farmacia.saludable.controller;
 
 import com.farmacia.farmacia.saludable.dto.RegistroDTO;
-import com.farmacia.farmacia.saludable.dto.UsuarioPacienteDTO;
-import com.farmacia.farmacia.saludable.entities.Paciente;
 import com.farmacia.farmacia.saludable.entities.Usuario;
-import com.farmacia.farmacia.saludable.repository.PacienteRepository;
 import com.farmacia.farmacia.saludable.repository.UsuarioRepository;
 import com.farmacia.farmacia.saludable.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -20,9 +20,7 @@ import java.util.List;
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
-    private final UsuarioRepository usuarioRepository;
-    @Autowired
-    private PacienteRepository pacienteRepository;
+    private final UsuarioRepository usuarioRepository;  // Inyectar el repositorio
 
     @Autowired
     public UsuarioController(UsuarioService usuarioService, UsuarioRepository usuarioRepository) {
@@ -37,7 +35,7 @@ public class UsuarioController {
         return new ResponseEntity<>(usuarios, HttpStatus.OK);
     }
 
-    @PostMapping("/crear-simple")
+    @PostMapping("/crear")
     public ResponseEntity<Usuario> crearUsuario(@RequestBody RegistroDTO request) {
         // Aquí se puede tener la lógica para crear un nuevo usuario
         Usuario usuario = new Usuario();
@@ -52,45 +50,40 @@ public class UsuarioController {
         return new ResponseEntity<>(guardado, HttpStatus.CREATED);
     }
 
-    @PostMapping("/crear")
-    public ResponseEntity<?> crearUsuarioConPaciente(@RequestBody UsuarioPacienteDTO request) {
-        Usuario usuario = request.getUsuario();
-        Paciente paciente = request.getPaciente();
-
-        // Asignamos valores al usuario
-        usuario.setFechaRegistro(LocalDateTime.now());
-
-        // Guardamos el usuario primero
-        Usuario usuarioGuardado = usuarioRepository.save(usuario);
-
-        // Solo guardamos el paciente si el rol es cliente
-        if ("cliente".equalsIgnoreCase(usuario.getRol())) {
-            paciente.setUsuario(usuarioGuardado); // relación con usuario
-            pacienteRepository.save(paciente);
-        }
-
-        return new ResponseEntity<>(usuarioGuardado, HttpStatus.CREATED);
-    }
-
     // Registro completo (con datos adicionales)
-    @PostMapping("/registroCompleto")
-    public ResponseEntity<Usuario> registrarCompleto(@RequestBody RegistroDTO datosCompletos) {
-        Usuario usuario = usuarioRepository.findByCorreo(datosCompletos.getCorreo());
+    /*@PostMapping("/registroCompleto")
+    public String completarRegistro(@RequestParam String fechaNacimiento,
+                                    @RequestParam String genero,
+                                    @RequestParam String telefono,
+                                    @RequestParam String direccion,
+                                    OAuth2AuthenticationToken authentication,
+                                    RedirectAttributes redirectAttributes) {
+        String nombre = (String) authentication.getPrincipal().getAttributes().get("given_name");
+        String apellido = (String) authentication.getPrincipal().getAttributes().get("family_name");
+        String correo = (String) authentication.getPrincipal().getAttributes().get("email");
+
+        Usuario usuario = usuarioRepository.findByCorreo(correo);
+
         if (usuario != null) {
-            // Aquí puedes actualizar los datos faltantes
-            usuario.setFechaNacimiento(datosCompletos.getFechaNacimiento());
-            usuario.setGenero(datosCompletos.getGenero());
-            usuario.setTelefono(datosCompletos.getTelefono());
-            usuario.setDireccion(datosCompletos.getDireccion());
-
-            // Guardar el usuario con los datos actualizados
+            usuario.setFechaNacimiento(LocalDate.parse(fechaNacimiento));
+            usuario.setGenero(genero);
+            usuario.setTelefono(telefono);
+            usuario.setDireccion(direccion);
             usuarioRepository.save(usuario);
-
-            return new ResponseEntity<>(usuario, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);  // Usuario no encontrado
         }
+
+        // Enviamos los datos como flash attributes para la siguiente vista
+        redirectAttributes.addFlashAttribute("nombre", nombre + " " + apellido);
+        redirectAttributes.addFlashAttribute("correo", correo);
+
+        return "redirect:/registro-exitoso";
+    }*/
+
+    @GetMapping("/registro-exitoso")
+    public String registroExitoso() {
+        return "registro-exitoso"; // nombre del archivo HTML (sin extensión)
     }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<Usuario> obtenerUsuarioPorId(@PathVariable Long id) {

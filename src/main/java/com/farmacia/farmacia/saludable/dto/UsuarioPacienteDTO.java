@@ -22,5 +22,7 @@ public class UsuarioPacienteDTO {
     public void setPaciente(Paciente paciente) {
         this.paciente = paciente;
     }
+
+
 }
 

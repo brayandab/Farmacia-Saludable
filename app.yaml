@@ -1,4 +1,0 @@
-runtime: java17
-instance_class: F2
-env_variables:
-  GOOGLE_CLOUD_REGION: southamerica-east1
