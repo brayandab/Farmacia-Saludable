@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.w3.org/1999/xhtml">
+
 <head>
     <meta charset="UTF-8">
     <title>Registro de Usuario</title>
@@ -87,38 +88,106 @@
         a:hover {
             text-decoration: underline;
         }
+
+        .material-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            /* centra el contenido dentro del botón */
+            background: white;
+            color: #3c4043;
+            border: 1px solid #dadce0;
+            border-radius: 24px;
+            font-size: 14px;
+            font-family: "Roboto", sans-serif;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: background-color 0.4s ease;
+            text-decoration: none;
+            font-weight: bold;
+            max-width: 300px;
+            margin: 0 auto;
+            /* CENTRA el botón */
+        }
+
+        .material-btn:hover {
+            background-color: #cac9c9;
+        }
+
+        .material-btn .icon img {
+            height: 18px;
+            margin-right: 10px;
+        }
+
+        .separator {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            color: #555;
+            margin: 20px 0;
+        }
+
+        .separator::before,
+        .separator::after {
+            content: "";
+            flex: 1;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .separator::before {
+            margin-right: 10px;
+        }
+
+        .separator::after {
+            margin-left: 10px;
+        }
     </style>
 </head>
+
 <body>
 
-<div class="titulo-principal">Farmacia Saludable</div>
+    <div class="titulo-principal">Farmacia Saludable</div>
 
-<div class="registro-container">
-    <h2>Formulario de Registro</h2>
+    <div class="registro-container">
+        <h2>Formulario de Registro</h2>
 
-    <!-- ALERTA SI EL CORREO YA EXISTE -->
-    <div th:if="${correoExistente}" style="color: red; text-align: center; font-weight: bold; margin-bottom: 15px;">
-        El correo ingresado ya está registrado. Por favor, intenta con otro.
+        <!-- ALERTA SI EL CORREO YA EXISTE -->
+        <div th:if="${correoExistente}" style="color: red; text-align: center; font-weight: bold; margin-bottom: 15px;">
+            El correo ingresado ya está registrado. Por favor, intente con una dirección de correo diferente.
+        </div>
+
+        <form action="/basico" method="POST">
+            <label for="nombre">Nombre</label>
+            <input type="text" id="nombre" name="nombre" required>
+
+            <label for="apellido">Apellido</label>
+            <input type="text" id="apellido" name="apellido" required>
+
+            <label for="correo">Correo</label>
+            <input type="email" id="correo" name="correo" required>
+
+            <label for="contraseña">Contraseña</label>
+            <input type="password" id="contraseña" name="contraseña" required>
+
+            <button type="submit">Registrarse</button>
+
+            <div class="separator">
+                <span>Ó</span>
+            </div>
+
+            <a.2 href="/login/oauth2/authorization/google">
+                <button class="material-btn">
+                    <span class="icon">
+                        <img src="https://img.icons8.com/?size=100&id=V5cGWnc9R4xj&format=png&color=000000">
+                    </span>
+                    <span class="text">Registrarse con Google</span>
+                </button>
+            </a.2>
+        </form>
+
+        <p>¿Ya tiene cuenta? <a href=login.html>Iniciar sesión </a></p>
     </div>
 
-    <form action="/basico" method="POST">
-        <label for="nombre">Nombre:</label>
-        <input type="text" id="nombre" name="nombre" required>
-
-        <label for="apellido">Apellido:</label>
-        <input type="text" id="apellido" name="apellido" required>
-
-        <label for="correo">Correo:</label>
-        <input type="email" id="correo" name="correo" required>
-
-        <label for="contraseña">Contraseña:</label>
-        <input type="password" id="contraseña" name="contraseña" required>
-
-        <button type="submit">Registrar</button>
-    </form>
-
-    <p>¿Ya tienes cuenta? <a href="/login/oauth2/authorization/google">Iniciar sesión con Google</a></p>
-</div>
-
 </body>
+
 </html>

@@ -2,7 +2,7 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Inicio</title>
+    <title>Finalice su registro</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -88,10 +88,10 @@
     <h1>Completa tu Registro</h1>
     <form action="/registroCompleto" method="post">
         <!-- Datos del usuario -->
-        <label>Fecha de Nacimiento:</label>
+        <label>Fecha de Nacimiento</label>
         <input type="date" name="usuario.fechaNacimiento" required>
 
-        <label>Género:</label>
+        <label>Género</label>
         <select name="usuario.genero" required>
             <option value="" disabled selected>Seleccionar</option>
             <option value="Masculino">Masculino</option>
@@ -100,26 +100,26 @@
         </select>
 
 
-        <label>Teléfono:</label>
+        <label>Teléfono</label>
         <input type="text" name="usuario.telefono" required>
 
-        <label>Dirección:</label>
+        <label>Dirección</label>
         <input type="text" name="usuario.direccion" required>
 
-        <label>Tipo de Sangre:</label>
+        <label>Tipo de Sangre</label>
         <input type="text" name="usuario.tipoSangre">
 
         <!-- Datos de la entidad Paciente -->
-        <label>Historial Médico:</label>
+        <label>Historial Médico</label>
         <textarea name="paciente.historialMedico" rows="3"></textarea>
 
-        <label>Alergias:</label>
+        <label>Alergias</label>
         <textarea name="paciente.alergias" rows="3"></textarea>
 
-        <label>Medicamentos Recetados:</label>
+        <label>Medicamentos Recetados</label>
         <textarea name="paciente.medicamentosRecetados" rows="3"></textarea>
 
-        <label>Otra Información Relevante:</label>
+        <label>Otra Información Relevante</label>
         <textarea name="paciente.otraInformacionRelevante" rows="3"></textarea>
 
         <button type="submit">Finalizar Registro</button>

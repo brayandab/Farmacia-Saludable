@@ -15,7 +15,7 @@
         body {
             font-family: 'Segoe UI', sans-serif;
             background-color: #e8f5e9;
-            color: #2e7d32;
+            color: #1675b4;
             text-align: center;
             padding-top: 50px;
         }
@@ -30,7 +30,7 @@
         }
 
         h1 {
-            color: #2e7d32;
+            color: #1675b4;
         }
 
         p {
@@ -38,18 +38,21 @@
         }
 
         a {
+            transition: 0.5ms;
             margin-top: 20px;
             display: inline-block;
             text-decoration: none;
             color: white;
-            background-color: #2e7d32;
+            background-color: #0d64b4;
             padding: 10px 20px;
             border-radius: 6px;
+            transition: background-color 0.5s ease;
         }
 
         a:hover {
-            background-color: #1b5e20;
+            background-color: #2682d8;
         }
+
     </style>
 </head>
 <body>
@@ -57,9 +60,7 @@
     <h1>🎉 ¡Registro Completado!</h1>
     <p>Gracias por registrarte, <strong th:text="${nombre}"></strong></p>
     <p>Te hemos registrado con el correo: <strong th:text="${correo}"></strong></p>
-    <a href="/logout">
-        <button class="btn btn-success">Ir al Inicio</button>
-    </a>
+    <a href="login.html"> Iniciar sesión</a>
 
 </div>
 </body>
