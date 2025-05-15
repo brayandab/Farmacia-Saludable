@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Farmacia - Catálogo Público</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+        <a class="navbar-brand" href="/">Farmacia</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link active" href="/">Inicio</a>
+                </li>
+                <li class="nav-item">
+                    <!--<a class="nav-link" href="/api/productos">API Productos</a>-->
+                </li>
+            </ul>
+            <div class="d-flex">
+                <a href="/login" class="btn btn-light">Iniciar Sesión</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <h1>Catálogo de Productos</h1>
+    <p class="lead">Bienvenido a nuestra farmacia en línea. Aquí encontrarás nuestros productos.</p>
+
+    <div class="row mt-4">
+        <div th:if="${not #lists.isEmpty(productos)}" class="row row-cols-1 row-cols-md-3 g-4">
+            <div th:each="producto : ${productos}" class="col">
+                <div class="card h-100">
+                    <img th:src="${producto.foto}" class="card-img-top" alt="Imagen del producto" loading="lazy" style="object-fit: cover; height: 200px;">
+                    <div class="card-body">
+                        <h5 class="card-title" th:text="${producto.nombre}">Nombre</h5>
+                        <p class="card-text" th:text="${producto.descripcion}">Descripción</p>
+                        <p class="card-text"><strong>Precio: </strong><span th:text="${'$' + producto.precioUnitario}">$0.00</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${#lists.isEmpty(productos)}" class="alert alert-info">
+            No hay productos disponibles en este momento.
+        </div>
+    </div>
+
+    <div class="mt-5 text-center">
+        <p>Para acceder a más funcionalidades, por favor inicia sesión:</p>
+        <a href="/login" class="btn btn-primary btn-lg">Iniciar Sesión</a>
+    </div>
+</div>
+
+<footer class="bg-light mt-5 py-3">
+    <div class="container text-center">
+        <p>© 2025 Sistema de Farmacia. Todos los derechos reservados.</p>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

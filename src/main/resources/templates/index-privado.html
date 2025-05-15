@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Farmacia - Catálogo de Productos</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+        <a class="navbar-brand" href="/">Farmacia</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link active" href="/">Inicio</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/api/productos">API Productos</a>
+                </li>
+                <!-- Opciones para el cliente -->
+                <li class="nav-item">
+                    <a class="nav-link" href="/cliente/recetas">Mis Recetas</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/cliente/historial">Historial de Compras</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/cliente/perfil">Mi Perfil</a>
+                </li>
+            </ul>
+            <div class="d-flex">
+                <p class="text-white m-0 me-3">Hola, <span th:text="${usuario.nombre}">Usuario</span>!</p>
+                <a href="/logout" class="btn btn-light">Cerrar sesión</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <h1>Catálogo de Productos</h1>
+    <p class="lead">Bienvenido a nuestra farmacia, <span th:text="${usuario.nombre}">cliente</span>. Aquí puedes explorar nuestros productos.</p>
+
+    <div class="row mt-4">
+        <div th:if="${not #lists.isEmpty(productos)}" class="row row-cols-1 row-cols-md-3 g-4">
+            <div th:each="producto : ${productos}" class="col">
+                <div class="card h-100">
+                    <img th:src="${producto.foto}" class="card-img-top" alt="Imagen del producto" loading="lazy" style="object-fit: cover; height: 200px;">
+                    <div class="card-body">
+                        <h5 class="card-title" th:text="${producto.nombre}">Nombre del producto</h5>
+                        <p class="card-text" th:text="${producto.descripcion}">Descripción del producto</p>
+                        <p class="card-text"><strong>Precio: </strong><span th:text="${'$' + producto.precioUnitario}">$0.00</span></p>
+
+                        <!-- Botón para agregar al carrito -->
+                        <button class="btn btn-primary w-100"
+                                th:attr="onclick=|agregarAlCarrito(${producto.idMedicamento}, '${producto.nombre}', ${producto.precioUnitario})|">
+                            Agregar al carrito
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${#lists.isEmpty(productos)}" class="alert alert-info">
+            No hay productos disponibles en este momento.
+        </div>
+    </div>
+</div>
+
+<!-- Botón flotante para mostrar carrito -->
+<div style="position: fixed; bottom: 20px; right: 20px; z-index: 1050;">
+    <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#carritoModal">
+        Carrito (<span id="contador-carrito">0</span>)
+    </button>
+</div>
+
+<!-- Modal del carrito -->
+<div class="modal fade" id="carritoModal" tabindex="-1" aria-labelledby="carritoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="carritoModalLabel">Carrito de Compras</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body" id="contenido-carrito">
+                <!-- Aquí se llenará la lista de productos -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="bg-light mt-5 py-3">
+    <div class="container text-center">
+        <p>© 2025 Sistema de Farmacia. Todos los derechos reservados.</p>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://js.stripe.com/v3/"></script>
+
+<script>
+
+// Inicializa Stripe con tu clave pública
+    const stripe = Stripe("pk_test_51PbTT2ESOGcPa8Nsh95bGHHZ6kNgvHD1KNZUqZNDvChvCszRpPUX5ZA6dWzEwjkWkvRTLQxuLH2TJNk200tWZIMU00Qr1pc05v"); // <-- Cambia aquí tu clave pública
+
+    // Función para agregar producto al carrito (almacenado en localStorage)
+    function agregarAlCarrito(id, nombre, precio) {
+        let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+        let index = carrito.findIndex(p => p.id === id);
+        if (index !== -1) {
+            carrito[index].cantidad += 1;
+        } else {
+            carrito.push({id: id, nombre: nombre, precio: precio, cantidad: 1});
+        }
+        localStorage.setItem('carrito', JSON.stringify(carrito));
+        actualizarContador();
+        alert(nombre + " agregado al carrito.");
+    }
+
+    // Actualiza el contador de productos en el botón flotante
+    function actualizarContador() {
+        let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+        let totalItems = carrito.reduce((acc, p) => acc + p.cantidad, 0);
+        document.getElementById('contador-carrito').textContent = totalItems;
+    }
+
+    // Llena el contenido del modal carrito con los productos actuales
+    function mostrarContenidoCarrito() {
+    let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+    let contenido = '';
+
+    if (carrito.length === 0) {
+        contenido = '<p>El carrito está vacío.</p>';
+    } else {
+        contenido += '<ul class="list-group">';
+        carrito.forEach(p => {
+            contenido += `
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="my-0">${p.nombre}</h6>
+                        <small class="text-muted">Cantidad: ${p.cantidad}</small>
+                    </div>
+                    <span class="text-muted">$${(p.precio * p.cantidad).toFixed(2)}</span>
+                </li>
+            `;
+        });
+        contenido += '</ul>';
+
+        const total = carrito.reduce((acc, p) => acc + (p.precio * p.cantidad), 0);
+        contenido += `<div class="mt-3 text-end"><strong>Total: $${total.toFixed(2)}</strong></div>`;
+
+        contenido += `
+          <div class="d-grid mt-3">
+            <button id="btnPagar" class="btn btn-success">Ir a pagar</button>
+          </div>
+        `;
+    }
+
+    document.getElementById('contenido-carrito').innerHTML = contenido;
+
+    // Aquí vuelve a buscar el botón y asigna el evento
+    const btnPagar = document.getElementById('btnPagar');
+    if (btnPagar) {
+        btnPagar.addEventListener('click', () => {
+            if (carrito.length === 0) {
+                alert("El carrito está vacío.");
+                return;
+            }
+            window.location.href = "/pago";  // Redirigir a la ruta de pago
+        });
+    }
+}
+
+
+    // Inicializa contador y configura evento del modal
+    actualizarContador();
+    const carritoModal = document.getElementById('carritoModal');
+    carritoModal.addEventListener('show.bs.modal', mostrarContenidoCarrito);
+</script>
+
+</body>
+</html>

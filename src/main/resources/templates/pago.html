@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Pago</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://js.stripe.com/v3/"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="container mt-5">
+  <h2 class="mb-4">Resumen del Carrito</h2>
+
+  <div id="lista-productos" class="mb-3"></div>
+
+  <div class="text-end fw-bold mb-4">
+    Total: $<span id="total">0.00</span>
+  </div>
+
+  <div id="mensaje-error" class="text-danger mb-3"></div>
+
+  <button id="pagar" class="btn btn-success w-100">Pagar con Stripe</button>
+</div>
+
+<script>
+  const stripe = Stripe("pk_test_51PbTT2ESOGcPa8Nsh95bGHHZ6kNgvHD1KNZUqZNDvChvCszRpPUX5ZA6dWzEwjkWkvRTLQxuLH2TJNk200tWZIMU00Qr1pc05v"); // Reemplaza con tu clave pública de Stripe
+
+  function mostrarProductos() {
+    const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
+    const lista = document.getElementById("lista-productos");
+    let total = 0;
+
+    if (carrito.length === 0) {
+      lista.innerHTML = "<div class='alert alert-warning'>El carrito está vacío.</div>";
+      document.getElementById("pagar").disabled = true;
+      return;
+    }
+
+    let contenido = '<ul class="list-group">';
+    carrito.forEach(p => {
+      const subtotal = p.precio * p.cantidad;
+      total += subtotal;
+      contenido += `
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <div>
+            <strong>${p.nombre}</strong><br>
+            <small>Cantidad: ${p.cantidad}</small>
+          </div>
+          <span>$${subtotal.toFixed(2)}</span>
+        </li>
+      `;
+    });
+    contenido += '</ul>';
+    lista.innerHTML = contenido;
+    document.getElementById("total").textContent = total.toFixed(2);
+  }
+
+  document.getElementById("pagar").addEventListener("click", () => {
+    const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
+
+    if (carrito.length === 0) {
+      document.getElementById("mensaje-error").textContent = "El carrito está vacío.";
+      return;
+    }
+
+    fetch("/api/pago/create-checkout-session", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ productos: carrito })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.id) {
+        stripe.redirectToCheckout({ sessionId: data.id });
+      } else {
+        throw new Error("No se pudo obtener la sesión de Stripe.");
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      document.getElementById("mensaje-error").textContent = "Error al iniciar el pago. Intenta nuevamente.";
+    });
+  });
+
+  // Mostrar productos al cargar
+  mostrarProductos();
+</script>
+
+</body>
+</html>
