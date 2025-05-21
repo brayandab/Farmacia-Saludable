@@ -1,0 +1,4 @@
+properties.txt
+application.properties
+target/classes/application.properties
+src/main/resources/application.properties

@@ -54,7 +54,7 @@ public class HomeWebController {
                 if ("cliente".equals(rol)) {
                     return "index-privado";
                 } else if ("farmaceutico".equals(rol)) {
-                    return "redirect:/farmaceutico/home";
+                    return "farmaceutico/home";
                 }
             }
         }

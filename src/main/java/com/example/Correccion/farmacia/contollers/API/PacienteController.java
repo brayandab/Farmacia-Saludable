@@ -17,7 +17,7 @@ public class PacienteController {
 
     /*
     * El restController sirve para las peticiones, osea las que interactuan con postman que
-    * traen los valores y funcionan con formato JSON, se pone la ruta en un RequestMapping y se copleta
+    * traen los valores y funcionan con formato JSON, se pone la ruta en un RequestMapping y se completa
     * esa ruta con lo que se pone en el  getMapping
     * */
     @Autowired

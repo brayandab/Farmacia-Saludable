@@ -82,7 +82,7 @@ public class PagoController {
                             .setQuantity((long) prod.getCantidad())
                             .setPriceData(
                                     SessionCreateParams.LineItem.PriceData.builder()
-                                            .setCurrency("mxn")
+                                            .setCurrency("cop") //Se convierte a la moneda local (Colombia)
                                             .setUnitAmount((long)(prod.getPrecio() * 100))  // convertir a centavos
                                             .setProductData(
                                                     SessionCreateParams.LineItem.PriceData.ProductData.builder()

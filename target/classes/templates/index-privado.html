@@ -1,63 +1,69 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <title>Farmacia - Catálogo de Productos</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 </head>
+
 <body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-    <div class="container">
-        <a class="navbar-brand" href="/">Farmacia</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item">
-                    <a class="nav-link active" href="/">Inicio</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/api/productos">API Productos</a>
-                </li>
-                <!-- Opciones para el cliente -->
-                <li class="nav-item">
-                    <a class="nav-link" href="/cliente/recetas">Mis Recetas</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/cliente/historial">Historial de Compras</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/cliente/perfil">Mi Perfil</a>
-                </li>
-            </ul>
-            <div class="d-flex">
-                <p class="text-white m-0 me-3">Hola, <span th:text="${usuario.nombre}">Usuario</span>!</p>
-                <a href="/logout" class="btn btn-light">Cerrar sesión</a>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">Farmacia</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/">Inicio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/api/productos">API Productos</a>
+                    </li>
+                    <!-- Opciones para el cliente -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="/cliente/recetas">Mis Recetas</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/cliente/historial">Historial de Compras</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/cliente/perfil">Mi Perfil</a>
+                    </li>
+                </ul>
+                <div class="d-flex">
+                    <p class="text-white m-0 me-3">Hola, <span th:text="${usuario.nombre}">Usuario</span>!</p>
+                    <a href="/logout" class="btn btn-light">Cerrar sesión</a>
+                </div>
             </div>
         </div>
-    </div>
-</nav>
+    </nav>
 
-<div class="container mt-4">
-    <h1>Catálogo de Productos</h1>
-    <p class="lead">Bienvenido a nuestra farmacia, <span th:text="${usuario.nombre}">cliente</span>. Aquí puedes explorar nuestros productos.</p>
+    <div class="container mt-4">
+        <h1>Catálogo de Productos</h1>
+        <p class="lead">Bienvenido a nuestra farmacia, <span th:text="${usuario.nombre}">cliente</span>. Aquí puedes
+            explorar nuestros productos.</p>
 
-    <div class="row mt-4">
-        <div th:if="${not #lists.isEmpty(productos)}" class="row row-cols-1 row-cols-md-3 g-4">
-            <div th:each="producto : ${productos}" class="col">
-                <div class="card h-100">
-                    <img th:src="${producto.foto}" class="card-img-top" alt="Imagen del producto" loading="lazy" style="object-fit: cover; height: 200px;">
-                    <div class="card-body">
-                        <h5 class="card-title" th:text="${producto.nombre}">Nombre del producto</h5>
-                        <p class="card-text" th:text="${producto.descripcion}">Descripción del producto</p>
-                        <p class="card-text"><strong>Precio: </strong><span th:text="${'$' + producto.precioUnitario}">$0.00</span></p>
+        <div class="row mt-4">
+            <div th:if="${not #lists.isEmpty(productos)}" class="row row-cols-1 row-cols-md-3 g-4">
+                <div th:each="producto, iterStat : ${productos}" th:if="${iterStat.index < 10}"
+                    th:classappend="${iterStat.index == 9} ? ' d-flex justify-content-center' : ''" class="col">
+                    <div class="card h-100">
+                        <img th:src="${producto.foto}" class="card-img-top" alt="Imagen del producto" loading="lazy"
+                            style="object-fit: cover; height: 200px;">
+                        <div class="card-body">
+                            <h5 class="card-title" th:text="${producto.nombre}">Nombre del producto</h5>
+                            <p class="card-text" th:text="${producto.descripcion}">Descripción del producto</p>
+                            <p class="card-text"><strong>Precio: </strong><span
+                                    th:text="${'$' + producto.precioUnitario}">$0.00</span></p>
 
-                        <!-- Botón para agregar al carrito -->
-                        <button class="btn btn-primary w-100"
-                                th:attr="onclick=|agregarAlCarrito(${producto.idMedicamento}, '${producto.nombre}', ${producto.precioUnitario})|">
-                            Agregar al carrito
-                        </button>
+                            <button class="btn btn-primary w-100"
+                                th:attr="onclick=|abrirModalCantidad(${producto.idMedicamento}, '${producto.nombre}', ${producto.precioUnitario})|">
+                                Agregar al carrito
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -67,121 +73,378 @@
             No hay productos disponibles en este momento.
         </div>
     </div>
-</div>
+    </div>
 
-<!-- Botón flotante para mostrar carrito -->
-<div style="position: fixed; bottom: 20px; right: 20px; z-index: 1050;">
-    <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#carritoModal">
-        Carrito (<span id="contador-carrito">0</span>)
-    </button>
-</div>
-
-<!-- Modal del carrito -->
-<div class="modal fade" id="carritoModal" tabindex="-1" aria-labelledby="carritoModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="carritoModalLabel">Carrito de Compras</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-            </div>
-            <div class="modal-body" id="contenido-carrito">
-                <!-- Aquí se llenará la lista de productos -->
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+    <!-- Modal para seleccionar cantidad -->
+    <div class="modal fade" id="modalCantidad" tabindex="-1" aria-labelledby="modalCantidadLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Seleccionar Cantidad</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="nombreProducto"></p>
+                    <input type="number" id="inputCantidad" class="form-control" min="1" value="1">
+                    <input type="hidden" id="productoId">
+                    <input type="hidden" id="productoPrecio">
+                    <input type="hidden" id="productoNombre">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="confirmarAgregar">Agregar al carrito</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<footer class="bg-light mt-5 py-3">
-    <div class="container text-center">
-        <p>© 2025 Sistema de Farmacia. Todos los derechos reservados.</p>
+    <!-- Botón flotante para mostrar carrito -->
+    <div style="position: fixed; bottom: 20px; right: 20px; z-index: 1050;">
+        <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#carritoModal">
+            Carrito (<span id="contador-carrito">0</span>)
+        </button>
     </div>
-</footer>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://js.stripe.com/v3/"></script>
+    <!-- Modal del carrito -->
+    <div class="modal fade" id="carritoModal" tabindex="-1" aria-labelledby="carritoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="carritoModalLabel">Carrito de Compras</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body" id="contenido-carrito">
+                    <!-- Aquí se llenará la lista de productos -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<script>
+    <footer class="bg-light mt-5 py-3">
+        <div class="container text-center">
+            <p>© 2025 Sistema de Farmacia. Todos los derechos reservados.</p>
+        </div>
+    </footer>
 
-// Inicializa Stripe con tu clave pública
-    const stripe = Stripe("pk_test_51PbTT2ESOGcPa8Nsh95bGHHZ6kNgvHD1KNZUqZNDvChvCszRpPUX5ZA6dWzEwjkWkvRTLQxuLH2TJNk200tWZIMU00Qr1pc05v"); // <-- Cambia aquí tu clave pública
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://js.stripe.com/v3/"></script>
 
-    // Función para agregar producto al carrito (almacenado en localStorage)
-    function agregarAlCarrito(id, nombre, precio) {
-        let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
-        let index = carrito.findIndex(p => p.id === id);
-        if (index !== -1) {
-            carrito[index].cantidad += 1;
-        } else {
-            carrito.push({id: id, nombre: nombre, precio: precio, cantidad: 1});
+    <style>
+        body {
+            background-color: #f8f9fa;
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        localStorage.setItem('carrito', JSON.stringify(carrito));
-        actualizarContador();
-        alert(nombre + " agregado al carrito.");
-    }
 
-    // Actualiza el contador de productos en el botón flotante
-    function actualizarContador() {
-        let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
-        let totalItems = carrito.reduce((acc, p) => acc + p.cantidad, 0);
-        document.getElementById('contador-carrito').textContent = totalItems;
-    }
+        h1 {
+            font-weight: 700;
+            color: #0d6efd;
+        }
 
-    // Llena el contenido del modal carrito con los productos actuales
-    function mostrarContenidoCarrito() {
-    let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
-    let contenido = '';
+        .card {
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
 
-    if (carrito.length === 0) {
-        contenido = '<p>El carrito está vacío.</p>';
-    } else {
-        contenido += '<ul class="list-group">';
-        carrito.forEach(p => {
-            contenido += `
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <div>
-                        <h6 class="my-0">${p.nombre}</h6>
-                        <small class="text-muted">Cantidad: ${p.cantidad}</small>
-                    </div>
-                    <span class="text-muted">$${(p.precio * p.cantidad).toFixed(2)}</span>
-                </li>
-            `;
-        });
-        contenido += '</ul>';
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
 
-        const total = carrito.reduce((acc, p) => acc + (p.precio * p.cantidad), 0);
-        contenido += `<div class="mt-3 text-end"><strong>Total: $${total.toFixed(2)}</strong></div>`;
+        .card-img-top {
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+        }
 
-        contenido += `
-          <div class="d-grid mt-3">
-            <button id="btnPagar" class="btn btn-success">Ir a pagar</button>
-          </div>
-        `;
-    }
+        .btn-primary {
+            background: linear-gradient(135deg, #4a90e2, #357ABD);
+            border: none;
+            color: white;
+            font-weight: 600;
+            padding: 12px 20px;
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(69, 114, 186, 0.4);
+            transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+        }
 
-    document.getElementById('contenido-carrito').innerHTML = contenido;
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #357ABD, #2a5eaa);
+            box-shadow: 0 8px 20px rgba(53, 122, 189, 0.6);
+            transform: translateY(-2px);
+        }
 
-    // Aquí vuelve a buscar el botón y asigna el evento
-    const btnPagar = document.getElementById('btnPagar');
-    if (btnPagar) {
-        btnPagar.addEventListener('click', () => {
-            if (carrito.length === 0) {
-                alert("El carrito está vacío.");
+        .btn-primary:active {
+            transform: translateY(1px);
+            box-shadow: 0 4px 8px rgba(53, 122, 189, 0.5);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f9a825, #f57f17);
+            border: none;
+            color: white;
+            font-weight: 700;
+            padding: 14px 22px;
+            border-radius: 50px;
+            box-shadow: 0 6px 20px rgba(245, 127, 23, 0.6);
+            transition: background 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .btn-warning:hover {
+            background: linear-gradient(135deg, #f57f17, #c17900);
+            box-shadow: 0 10px 28px rgba(193, 121, 0, 0.8);
+            text-decoration: none;
+        }
+
+        .modal-header {
+            background-color: #0d6efd;
+            color: white;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+        }
+
+        .modal-footer {
+            border-top: none;
+        }
+
+        .list-group-item {
+            border-radius: 8px;
+            margin-bottom: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .list-group-item h6 {
+            font-weight: 600;
+            margin-bottom: 0;
+        }
+
+        .list-group-item small {
+            font-size: 0.85rem;
+        }
+
+        .btn-danger {
+            border-radius: 50%;
+            padding: 0 8px;
+            font-size: 1.2rem;
+            line-height: 1;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-danger:hover {
+            background-color: #b02a37;
+        }
+
+        .alert-info {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 576px) {
+
+            .btn-primary,
+            .btn-warning {
+                width: 100%;
+                padding: 12px 0;
+            }
+        }
+
+        @keyframes slideDownFadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card {
+            opacity: 0;
+            animation-name: slideDownFadeIn;
+            animation-fill-mode: forwards;
+            animation-duration: 0.5s;
+            animation-timing-function: ease-out;
+        }
+
+        .row-cols-md-3>.col:nth-child(1) .card {
+            animation-delay: 0.1s;
+        }
+
+        .row-cols-md-3>.col:nth-child(2) .card {
+            animation-delay: 0.3s;
+        }
+
+        .row-cols-md-3>.col:nth-child(3) .card {
+            animation-delay: 0.5s;
+        }
+
+        .row-cols-md-3>.col:nth-child(4) .card {
+            animation-delay: 0.7s;
+        }
+
+        .row-cols-md-3>.col:nth-child(5) .card {
+            animation-delay: 0.9s;
+        }
+
+        .row-cols-md-3>.col:nth-child(6) .card {
+            animation-delay: 1.1s;
+        }
+
+        .row-cols-md-3>.col:nth-child(7) .card {
+            animation-delay: 1.3s;
+        }
+
+        .row-cols-md-3>.col:nth-child(8) .card {
+            animation-delay: 1.5s;
+        }
+
+        .row-cols-md-3>.col:nth-child(9) .card {
+            animation-delay: 1.7s;
+        }
+
+        .row-cols-md-3>.col:nth-child(10) .card {
+            animation-delay: 1.9s;
+        }
+
+        .row.row-cols-1.row-cols-md-3.g-4>.col {
+            display: flex;
+            justify-content: center;
+        }
+
+        .row.row-cols-1.row-cols-md-3.g-4>.col>.card {
+            width: 100%;
+            max-width: 350px;
+        }
+    </style>
+
+    <script>
+        // Función para abrir modal cantidad al agregar producto (igual que antes)
+        function abrirModalCantidad(id, nombre, precio) {
+            document.getElementById("productoId").value = id;
+            document.getElementById("productoNombre").value = nombre;
+            document.getElementById("productoPrecio").value = precio;
+            document.getElementById("nombreProducto").textContent = `Indique la cantidad de ${nombre} que desee agregar`;
+            document.getElementById("inputCantidad").value = 1;
+
+            const modal = new bootstrap.Modal(document.getElementById("modalCantidad"));
+            modal.show();
+        }
+
+        document.getElementById("confirmarAgregar").addEventListener("click", function () {
+            const id = parseInt(document.getElementById("productoId").value);
+            const nombre = document.getElementById("productoNombre").value;
+            const precio = parseFloat(document.getElementById("productoPrecio").value);
+            const cantidad = parseInt(document.getElementById("inputCantidad").value);
+
+            if (isNaN(cantidad) || cantidad < 1) {
+                alert("Cantidad inválida.");
                 return;
             }
-            window.location.href = "/pago";  // Redirigir a la ruta de pago
+
+            let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+            const index = carrito.findIndex(p => p.id === id);
+            if (index !== -1) {
+                carrito[index].cantidad += cantidad;
+            } else {
+                carrito.push({ id, nombre, precio, cantidad });
+            }
+
+            localStorage.setItem('carrito', JSON.stringify(carrito));
+            actualizarContador();
+
+            const modal = bootstrap.Modal.getInstance(document.getElementById("modalCantidad"));
+            modal.hide();
+            alert(`${nombre} x${cantidad} agregado(s) al carrito.`);
         });
-    }
-}
 
+        // Al hacer click en "Agregar al carrito" abre modal para seleccionar cantidad
+        function agregarAlCarrito(id, nombre, precio) {
+            abrirModalCantidad(id, nombre, precio);
+        }
 
-    // Inicializa contador y configura evento del modal
-    actualizarContador();
-    const carritoModal = document.getElementById('carritoModal');
-    carritoModal.addEventListener('show.bs.modal', mostrarContenidoCarrito);
-</script>
+        // Actualiza el contador de productos en el botón flotante
+        function actualizarContador() {
+            let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+            let totalItems = carrito.reduce((acc, p) => acc + p.cantidad, 0);
+            document.getElementById('contador-carrito').textContent = totalItems;
+        }
+
+        // Muestra el carrito con opción de eliminar productos
+        function mostrarContenidoCarrito() {
+            let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+            let contenido = '';
+
+            if (carrito.length === 0) {
+                contenido = '<p>El carrito está vacío.</p>';
+            } else {
+                contenido += '<ul class="list-group">';
+                carrito.forEach((p, index) => {
+                    contenido += `
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="my-0">${p.nombre}</h6>
+                            <small class="text-muted">Cantidad: ${p.cantidad}</small>
+                        </div>
+                        <span class="text-muted mx-3">$${(p.precio * p.cantidad).toFixed(2)}</span>
+                        <button class="btn btn-sm btn-danger eliminar-btn" data-index="${index}">&times;</button>
+                    </li>
+                `;
+                });
+                contenido += '</ul>';
+
+                const total = carrito.reduce((acc, p) => acc + (p.precio * p.cantidad), 0);
+                contenido += `<div class="mt-3 text-end"><strong>Total: $${total.toFixed(2)}</strong></div>`;
+
+                contenido += `
+              <div class="d-grid mt-3">
+                <button id="btnPagar" class="btn btn-success">Ir a pagar</button>
+              </div>
+            `;
+            }
+
+            document.getElementById('contenido-carrito').innerHTML = contenido;
+
+            // Evento para eliminar producto
+            document.querySelectorAll('.eliminar-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const index = parseInt(btn.getAttribute('data-index'));
+                    carrito.splice(index, 1);
+                    localStorage.setItem('carrito', JSON.stringify(carrito));
+                    mostrarContenidoCarrito();
+                    actualizarContador();
+                });
+            });
+
+            // Evento botón pagar
+            const btnPagar = document.getElementById('btnPagar');
+            if (btnPagar) {
+                btnPagar.addEventListener('click', () => {
+                    if (carrito.length === 0) {
+                        alert("El carrito está vacío.");
+                        return;
+                    }
+                    window.location.href = "/pago";
+                });
+            }
+        }
+
+        // Inicialización
+        actualizarContador();
+        const carritoModal = document.getElementById('carritoModal');
+        carritoModal.addEventListener('show.bs.modal', mostrarContenidoCarrito);
+    </script>
 
 </body>
+
 </html>

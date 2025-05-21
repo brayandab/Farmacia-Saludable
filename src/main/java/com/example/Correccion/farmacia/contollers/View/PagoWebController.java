@@ -8,6 +8,6 @@ public class PagoWebController {
 
     @GetMapping("/pago")
     public String mostrarFormularioPago() {
-        return "pago"; // Asegúrate de que 'pago.html' esté en src/main/resources/templates
+        return "pago"; 
     }
 }
