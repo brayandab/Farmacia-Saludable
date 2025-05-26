@@ -2,10 +2,83 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Pago Exitoso</title>
+    <title>Pago exitoso</title>
+    <style>
+        body {
+            background-color: #f0fff4;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+        }
+
+        .card {
+            background-color: #ffffff;
+            border: 2px solid #38a169;
+            border-radius: 10px;
+            padding: 40px;
+            display: inline-block;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #2f855a;
+        }
+
+        p {
+            font-size: 18px;
+            color: #4a5568;
+        }
+
+        .btn {
+            margin-top: 30px;
+            background-color: #38a169;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background-color: #2f855a;
+        }
+    </style>
 </head>
 <body>
-<h2>¡Gracias por tu compra!</h2>
-<p>El pago fue procesado correctamente.</p>
+<div class="card">
+    <h1>¡Pago exitoso! 🎉</h1>
+    <p>Tu compra se procesó correctamente.</p>
+    <a href="/" class="btn">Volver al inicio</a>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
+
+        if (carrito.length === 0) {
+            console.log("Carrito vacío, no se guarda la compra.");
+            return;
+        }
+
+        fetch("/api/pago/guardar-compra", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(carrito)
+        })
+        .then(response => {
+            if (response.ok) {
+                console.log("Compra registrada correctamente.");
+                localStorage.removeItem("carrito"); // Limpia el carrito solo si se guardó la compra
+            } else {
+                console.error("Error al guardar la compra");
+            }
+        })
+        .catch(error => console.error("Error al conectar con el backend:", error));
+    });
+</script>
 </body>
 </html>

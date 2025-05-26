@@ -329,7 +329,6 @@
     </style>
 
     <script>
-        // Función para abrir modal cantidad al agregar producto (igual que antes)
         function abrirModalCantidad(id, nombre, precio) {
             document.getElementById("productoId").value = id;
             document.getElementById("productoNombre").value = nombre;
@@ -360,27 +359,50 @@
                 carrito.push({ id, nombre, precio, cantidad });
             }
 
+            // Guardar en localStorage
             localStorage.setItem('carrito', JSON.stringify(carrito));
             actualizarContador();
 
+            // Ocultar el modal
             const modal = bootstrap.Modal.getInstance(document.getElementById("modalCantidad"));
             modal.hide();
+
+            // Mostrar mensaje
             alert(`${nombre} x${cantidad} agregado(s) al carrito.`);
+
+            // >>> Enviar el carrito actualizado al backend con fetch
+            fetch("/api/pago/create-checkout-session", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ productos: carrito })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Error al crear sesión de pago");
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log("Sesión de pago creada:", data);
+                // Puedes guardar el ID de sesión o manejar la lógica según respuesta
+            })
+            .catch(error => {
+                console.error("Error:", error);
+            });
         });
 
-        // Al hacer click en "Agregar al carrito" abre modal para seleccionar cantidad
         function agregarAlCarrito(id, nombre, precio) {
             abrirModalCantidad(id, nombre, precio);
         }
 
-        // Actualiza el contador de productos en el botón flotante
         function actualizarContador() {
             let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
             let totalItems = carrito.reduce((acc, p) => acc + p.cantidad, 0);
             document.getElementById('contador-carrito').textContent = totalItems;
         }
 
-        // Muestra el carrito con opción de eliminar productos
         function mostrarContenidoCarrito() {
             let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
             let contenido = '';
@@ -391,15 +413,15 @@
                 contenido += '<ul class="list-group">';
                 carrito.forEach((p, index) => {
                     contenido += `
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <div>
-                            <h6 class="my-0">${p.nombre}</h6>
-                            <small class="text-muted">Cantidad: ${p.cantidad}</small>
-                        </div>
-                        <span class="text-muted mx-3">$${(p.precio * p.cantidad).toFixed(2)}</span>
-                        <button class="btn btn-sm btn-danger eliminar-btn" data-index="${index}">&times;</button>
-                    </li>
-                `;
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="my-0">${p.nombre}</h6>
+                                <small class="text-muted">Cantidad: ${p.cantidad}</small>
+                            </div>
+                            <span class="text-muted mx-3">$${(p.precio * p.cantidad).toFixed(2)}</span>
+                            <button class="btn btn-sm btn-danger eliminar-btn" data-index="${index}">&times;</button>
+                        </li>
+                    `;
                 });
                 contenido += '</ul>';
 
@@ -407,15 +429,14 @@
                 contenido += `<div class="mt-3 text-end"><strong>Total: $${total.toFixed(2)}</strong></div>`;
 
                 contenido += `
-              <div class="d-grid mt-3">
-                <button id="btnPagar" class="btn btn-success">Ir a pagar</button>
-              </div>
-            `;
+                  <div class="d-grid mt-3">
+                    <button id="btnPagar" class="btn btn-success">Ir a pagar</button>
+                  </div>
+                `;
             }
 
             document.getElementById('contenido-carrito').innerHTML = contenido;
 
-            // Evento para eliminar producto
             document.querySelectorAll('.eliminar-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     const index = parseInt(btn.getAttribute('data-index'));
@@ -426,7 +447,6 @@
                 });
             });
 
-            // Evento botón pagar
             const btnPagar = document.getElementById('btnPagar');
             if (btnPagar) {
                 btnPagar.addEventListener('click', () => {
@@ -439,11 +459,11 @@
             }
         }
 
-        // Inicialización
         actualizarContador();
         const carritoModal = document.getElementById('carritoModal');
         carritoModal.addEventListener('show.bs.modal', mostrarContenidoCarrito);
     </script>
+
 
 </body>
 

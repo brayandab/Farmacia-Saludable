@@ -1,11 +1,12 @@
 package com.example.Correccion.farmacia.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
+
 @Entity
 @Table(name = "usuarios")
 public class Usuario {
@@ -17,23 +18,28 @@ public class Usuario {
     private String nombre;
     private String apellido;
     private String correo;
+
+    @JsonIgnore
     private String contraseña;
+
     private String rol;
-    //private LocalDate fechaNacimiento;
     private String genero;
     private String telefono;
-    //private String direccion;
     private LocalDateTime fechaRegistro;
-    //private String tipoSangre;
 
+    @Column(columnDefinition = "TEXT")
+    private String carritolista;
+
+    @Transient
+    @JsonIgnore
+    private String confirmPassword;
 
     @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL)
-    @JsonIgnore
-    @JsonManagedReference
     private Paciente paciente;
 
-    // getters y setters
 
+
+    // Getters y setters
 
     public Integer getIdUsuario() {
         return idUsuario;
@@ -83,14 +89,6 @@ public class Usuario {
         this.rol = rol;
     }
 
-    /*public LocalDate getFechaNacimiento() {
-        return fechaNacimiento;
-    }
-
-    public void setFechaNacimiento(LocalDate fechaNacimiento) {
-        this.fechaNacimiento = fechaNacimiento;
-    }*/
-
     public String getGenero() {
         return genero;
     }
@@ -107,14 +105,6 @@ public class Usuario {
         this.telefono = telefono;
     }
 
-    /*public String getDireccion() {
-        return direccion;
-    }
-
-    public void setDireccion(String direccion) {
-        this.direccion = direccion;
-    }*/
-
     public LocalDateTime getFechaRegistro() {
         return fechaRegistro;
     }
@@ -123,13 +113,21 @@ public class Usuario {
         this.fechaRegistro = fechaRegistro;
     }
 
-   /* public String getTipoSangre() {
-        return tipoSangre;
+    public String getCarritolista() {
+        return carritolista;
     }
 
-    public void setTipoSangre(String tipoSangre) {
-        this.tipoSangre = tipoSangre;
-    }*/
+    public void setCarritolista(String carritolista) {
+        this.carritolista = carritolista;
+    }
+
+    public String getConfirmPassword() {
+        return confirmPassword;
+    }
+
+    public void setConfirmPassword(String confirmPassword) {
+        this.confirmPassword = confirmPassword;
+    }
 
     public Paciente getPaciente() {
         return paciente;
@@ -138,4 +136,6 @@ public class Usuario {
     public void setPaciente(Paciente paciente) {
         this.paciente = paciente;
     }
+
+
 }

@@ -2,10 +2,55 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Cancelado</title>
+    <title>Pago cancelado</title>
+    <style>
+        body {
+            background-color: #fff5f5;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+        }
+
+        .card {
+            background-color: #ffffff;
+            border: 2px solid #e53e3e;
+            border-radius: 10px;
+            padding: 40px;
+            display: inline-block;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #c53030;
+        }
+
+        p {
+            font-size: 18px;
+            color: #4a5568;
+        }
+
+        .btn {
+            margin-top: 30px;
+            background-color: #e53e3e;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background-color: #c53030;
+        }
+    </style>
 </head>
 <body>
-<h2>¡Cancelado!</h2>
-<p>El pago fue cancelado.</p>
+<div class="card">
+    <h1>Pago cancelado ❌</h1>
+    <p>No se completó la transacción.</p>
+    <a href="/" class="btn">Volver al inicio</a>
+</div>
 </body>
 </html>

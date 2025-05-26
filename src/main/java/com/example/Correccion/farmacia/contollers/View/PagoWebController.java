@@ -10,4 +10,14 @@ public class PagoWebController {
     public String mostrarFormularioPago() {
         return "pago"; 
     }
+
+    @GetMapping("/success")
+    public String mostrarPagoExitoso() {
+        return "success";
+    }
+
+    @GetMapping("/cancel")
+    public String mostrarPagoCancelado() {
+        return "cancel";
+    }
 }

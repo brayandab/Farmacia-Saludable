@@ -1,7 +1,12 @@
 package com.example.Correccion.farmacia.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "compras")
@@ -13,10 +18,17 @@ public class Compra {
 
     @ManyToOne
     @JoinColumn(name = "id_paciente")
+    @JsonBackReference
     private Paciente paciente;
 
     private LocalDate fechaCompra;
     private double total;
+
+    @OneToMany(mappedBy = "compra", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<DetalleCompra> detalles = new ArrayList<>();
+
+    // Getters y Setters
 
     public Long getIdCompra() {
         return idCompra;
@@ -26,12 +38,12 @@ public class Compra {
         this.idCompra = idCompra;
     }
 
-    public double getTotal() {
-        return total;
+    public Paciente getPaciente() {
+        return paciente;
     }
 
-    public void setTotal(double total) {
-        this.total = total;
+    public void setPaciente(Paciente paciente) {
+        this.paciente = paciente;
     }
 
     public LocalDate getFechaCompra() {
@@ -42,12 +54,25 @@ public class Compra {
         this.fechaCompra = fechaCompra;
     }
 
-    public Paciente getPaciente() {
-        return paciente;
+    public double getTotal() {
+        return total;
     }
 
-    public void setPaciente(Paciente paciente) {
-        this.paciente = paciente;
+    public void setTotal(double total) {
+        this.total = total;
     }
-// Getters y Setters
+
+    public List<DetalleCompra> getDetalles() {
+        return detalles;
+    }
+
+    public void setDetalles(List<DetalleCompra> detalles) {
+        this.detalles = detalles;
+    }
+
+    // Método auxiliar para agregar detalles fácilmente
+    public void agregarDetalle(DetalleCompra detalle) {
+        detalles.add(detalle);
+        detalle.setCompra(this);
+    }
 }

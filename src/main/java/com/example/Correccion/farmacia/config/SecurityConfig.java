@@ -102,7 +102,8 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/css/**", "/js/**", "/images/**", "/", "/home", "/index/**", "/productos", "/api/**").permitAll()
+                        .requestMatchers("/css/**", "/js/**", "/images/**", "/", "/home", "/index/**", "/productos",
+                                "/api/**","/register","/api/pacientes/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .userDetailsService(userDetailsService()) // 👈 REGISTRA TU SERVICIO AQUÍ

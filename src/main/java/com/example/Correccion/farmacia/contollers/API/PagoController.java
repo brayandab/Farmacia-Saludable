@@ -3,13 +3,15 @@ package com.example.Correccion.farmacia.contollers.API;
 import com.example.Correccion.farmacia.dto.ProductoCarritoDTO;
 import com.example.Correccion.farmacia.dto.ProductosRequest;
 import com.example.Correccion.farmacia.entities.Compra;
+import com.example.Correccion.farmacia.entities.DetalleCompra;
+import com.example.Correccion.farmacia.entities.Paciente;
 import com.example.Correccion.farmacia.entities.Usuario;
 import com.example.Correccion.farmacia.repository.CompraRepository;
 import com.example.Correccion.farmacia.repository.PacienteRepository;
 import com.example.Correccion.farmacia.repository.UsuarioRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.stripe.Stripe;
 import com.stripe.model.checkout.Session;
-import com.stripe.net.Webhook;
 import com.stripe.param.checkout.SessionCreateParams;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,10 +21,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/pago")
@@ -48,16 +47,22 @@ public class PagoController {
         Stripe.apiKey = secretKey;
     }
 
+    // Crear sesión de pago en Stripe
     @PostMapping("/create-checkout-session")
     public ResponseEntity<Map<String, String>> createCheckoutSession(@RequestBody ProductosRequest request) {
         try {
             List<ProductoCarritoDTO> productos = request.getProductos();
 
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            String correoUsuario = auth.getName();
+            String correo;
 
-            Optional<Usuario> optionalUsuario = usuarioRepository.findByCorreo(correoUsuario);
+            if (auth.getPrincipal() instanceof org.springframework.security.oauth2.core.user.OAuth2User oauth2User) {
+                correo = oauth2User.getAttribute("email");
+            } else {
+                correo = auth.getName();
+            }
 
+            Optional<Usuario> optionalUsuario = usuarioRepository.findByCorreo(correo);
             if (optionalUsuario.isEmpty()) {
                 throw new RuntimeException("Usuario no encontrado");
             }
@@ -68,22 +73,20 @@ public class PagoController {
                 throw new RuntimeException("Carrito vacío");
             }
 
-            // Calcular total antes de crear lineItems
-            long totalCentavos = productos.stream()
-                    .mapToLong(prod -> (long)(prod.getPrecio() * 100) * prod.getCantidad())
-                    .sum();
+            // Guardar productos como JSON en usuario (opcional)
+            ObjectMapper mapper = new ObjectMapper();
+            String productosJson = mapper.writeValueAsString(productos);
+            usuario.setCarritolista(productosJson);
+            usuarioRepository.save(usuario);
 
-            System.out.println("Total que se enviará a Stripe (en centavos): " + totalCentavos);
-            System.out.println("Total que se enviará a Stripe (en pesos): " + (totalCentavos / 100.0));
-
-// Luego crear lineItems como antes
+            // Crear items para Stripe
             List<SessionCreateParams.LineItem> lineItems = productos.stream().map(prod ->
                     SessionCreateParams.LineItem.builder()
                             .setQuantity((long) prod.getCantidad())
                             .setPriceData(
                                     SessionCreateParams.LineItem.PriceData.builder()
-                                            .setCurrency("cop") //Se convierte a la moneda local (Colombia)
-                                            .setUnitAmount((long)(prod.getPrecio() * 100))  // convertir a centavos
+                                            .setCurrency("cop")
+                                            .setUnitAmount((long) (prod.getPrecio() * 100)) // centavos
                                             .setProductData(
                                                     SessionCreateParams.LineItem.PriceData.ProductData.builder()
                                                             .setName(prod.getNombre())
@@ -91,8 +94,6 @@ public class PagoController {
                                             .build())
                             .build()
             ).toList();
-
-
 
             SessionCreateParams params = SessionCreateParams.builder()
                     .setMode(SessionCreateParams.Mode.PAYMENT)
@@ -110,4 +111,54 @@ public class PagoController {
             return ResponseEntity.status(500).body(Collections.singletonMap("error", "Error al iniciar el pago: " + e.getMessage()));
         }
     }
+
+    // Guardar la compra y detalles luego de la confirmación del pago
+    @PostMapping("/guardar-compra")
+    public ResponseEntity<String> guardarCompraConDetalles(@RequestBody List<ProductoCarritoDTO> productos) {
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            String correo;
+
+            if (auth.getPrincipal() instanceof org.springframework.security.oauth2.core.user.OAuth2User oauth2User) {
+                correo = oauth2User.getAttribute("email");
+            } else {
+                correo = auth.getName();
+            }
+
+            Optional<Paciente> pacienteOpt = pacienteRepository.findByUsuario_Correo(correo);
+            if (pacienteOpt.isEmpty()) {
+                return ResponseEntity.status(404).body("Paciente no encontrado");
+            }
+
+            Paciente paciente = pacienteOpt.get();
+
+            Compra compra = new Compra();
+            compra.setPaciente(paciente);
+            compra.setFechaCompra(LocalDate.now());
+
+            double total = productos.stream()
+                    .mapToDouble(p -> p.getPrecio() * p.getCantidad())
+                    .sum();
+            compra.setTotal(total);
+
+            // Agregar detalles usando el método auxiliar
+            for (ProductoCarritoDTO prod : productos) {
+                DetalleCompra detalle = new DetalleCompra();
+                detalle.setNombreProducto(prod.getNombre());
+                detalle.setCantidad(prod.getCantidad());
+                detalle.setPrecioUnitario(prod.getPrecio());
+
+                compra.agregarDetalle(detalle);
+            }
+
+            compraRepository.save(compra);
+
+            return ResponseEntity.ok("Compra guardada con éxito");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Error al guardar la compra: " + e.getMessage());
+        }
+    }
+
 }

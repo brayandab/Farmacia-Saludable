@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <style>
+        /* Aquí va tu CSS existente */
         body {
             background-color: #f0f2f5;
             min-height: 100vh;
@@ -98,123 +99,202 @@
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container">
-            <a class="navbar-brand" href="/">Farmacia</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/">Inicio</a>
-                    </li>
-                </ul>
-            </div>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+        <a class="navbar-brand" href="/">Farmacia</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Inicio</a>
+                </li>
+            </ul>
         </div>
-    </nav>
+    </div>
+</nav>
 
-    <div class="main-container">
-        <div class="card">
-            <div class="card-header">
-                <h4 class="mb-0">Registro</h4>
-            </div>
-            <div class="card-body">
+<div class="main-container">
+    <div class="card">
+        <div class="card-header">
+            <h4 class="mb-0">Registro</h4>
+        </div>
+        <div class="card-body">
 
-                <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+            <div id="errorMessage" class="alert alert-danger d-none"></div>
 
-                <form th:action="@{/register}" th:object="${usuario}" method="post" novalidate>
-                    <div class="mb-3">
-                        <label for="nombre" class="form-label">Nombres</label>
-                        <input type="text" class="form-control" id="nombre" th:field="*{nombre}"
-                            placeholder="Tu nombre completo" required />
-                    </div>
-                    <div class="mb-3">
-                        <label for="apellido" class="form-label">Apellido</label>
-                        <input type="text" class="form-control" id="nombre" th:field="*{nombre}"
-                            placeholder="Tu nombre completo" required />
-                    </div>
-                    <div class="mb-3">
-                        <label for="email" class="form-label">Correo Electrónico</label>
-                        <input type="email" class="form-control" id="email" th:field="*{email}"
-                            placeholder="ejemplo@correo.com" required />
-                    </div>
-                    <div class="mb-3">
-                        <label for="password" class="form-label">Contraseña</label>
-                        <div class="position-relative d-flex align-items-center">
-                            <input type="password" class="form-control pe-5" id="password" name="password" required
-                                minlength="6" />
-                            <span class="password-toggle position-absolute end-0 me-3">
-                                <i class="bi bi-eye"></i>
-                            </span>
-                        </div>
-                    </div>
+            <form id="formRegistro" novalidate>
+                <div class="mb-3">
+                    <label for="nombre" class="form-label">Nombre</label>
+                    <input type="text" class="form-control" id="nombre" name="nombre"
+                           placeholder="Nombre" required />
+                </div>
+                <div class="mb-3">
+                    <label for="apellido" class="form-label">Apellido</label>
+                    <input type="text" class="form-control" id="apellido" name="apellido"
+                           placeholder="Primer Apellido" required />
+                </div>
+                <div class="mb-3">
+                    <label for="correo" class="form-label">Correo Electrónico</label>
+                    <input type="email" class="form-control" id="correo" name="correo"
+                           placeholder="ejemplo@correo.com" required />
+                </div>
+                <div class="mb-3">
+                    <label for="direccion" class="form-label">Dirección</label>
+                    <input type="text" class="form-control" id="direccion" name="direccion"
+                           placeholder="Dirección completa" required />
+                </div>
+                <div class="mb-3">
+                    <label for="telefono" class="form-label">Teléfono</label>
+                    <input type="tel" class="form-control" id="telefono" name="telefono"
+                           placeholder="Número telefónico" pattern="[0-9]{7,15}" title="Solo números, 7 a 15 dígitos" required />
+                </div>
+                <div class="mb-3">
+                    <label for="fechaNacimiento" class="form-label">Fecha de nacimiento</label>
+                    <input type="date" class="form-control" id="fechaNacimiento" name="fechaNacimiento"
+                           required />
+                </div>
+                <div class="mb-3">
+                    <label for="genero" class="form-label">Género</label>
+                    <select class="form-select" id="genero" name="genero" required>
+                        <option value="" disabled selected>Seleccione su género</option>
+                        <option value="Masculino">Masculino</option>
+                        <option value="Femenino">Femenino</option>
+                    </select>
+                </div>
 
-                    <div class="mb-3">
-                        <label for="confirmPassword" class="form-label">Confirmar Contraseña</label>
-                        <div class="position-relative d-flex align-items-center">
-                            <input type="password" class="form-control pe-5" id="confirmPassword" name="confirmPassword"
-                                required minlength="6" />
-                            <span class="password-toggle position-absolute end-0 me-3">
-                                <i class="bi bi-eye"></i>
-                            </span>
-                        </div>
-                    </div>
 
-            </div>
-            <div class="d-grid gap-2">
-                <button type="submit" class="btn btn-primary">Registrarse</button>
-            </div>
+                <!-- Campos extra para paciente -->
+
+                <div class="mb-3">
+                    <label for="tipoSangre" class="form-label">Tipo de Sangre</label>
+                    <input type="text" class="form-control" id="tipoSangre" name="tipoSangre" placeholder="Tipo de Sangre (opcional)" />
+                </div>
+
+                <div class="mb-3">
+                    <label for="contraseña" class="form-label">Contraseña</label>
+                    <div class="position-relative d-flex align-items-center">
+                        <input type="password" class="form-control pe-5" id="contraseña" name="contraseña" required
+                               minlength="6" />
+                        <span class="password-toggle position-absolute end-0 me-3">
+                            <i class="bi bi-eye"></i>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="confirmarContraseña" class="form-label">Confirmar Contraseña</label>
+                    <div class="position-relative d-flex align-items-center">
+                        <input type="password" class="form-control pe-5" id="confirmarContraseña" name="confirmarContraseña"
+                               required minlength="6" />
+                        <span class="password-toggle position-absolute end-0 me-3">
+                            <i class="bi bi-eye"></i>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary">Registrarse</button>
+                </div>
             </form>
 
-            <div class="mt-4 text-center">
-                <p>¿Ya tienes cuenta? <a href="/login">Inicia sesión aquí</a></p>
+            <div class="mt-3 text-center">
+                ¿Ya tienes cuenta? <a href="/login">Inicia sesión</a>
             </div>
         </div>
     </div>
-    </div>
+</div>
 
-    <script>
-
-        document.querySelectorAll('.password-toggle').forEach(toggle => {
-            toggle.addEventListener('click', () => {
-                const input = toggle.previousElementSibling;
-                const icon = toggle.querySelector('i');
-
-                if (input.type === 'password') {
-                    input.type = 'text';
-                    icon.classList.remove('bi-eye');
-                    icon.classList.add('bi-eye-slash');
-                } else {
-                    input.type = 'password';
-                    icon.classList.remove('bi-eye-slash');
-                    icon.classList.add('bi-eye');
-                }
-            });
-        });
-
-
-        const form = document.querySelector('form');
-        const password = document.getElementById('password');
-        const confirmPassword = document.getElementById('confirmPassword');
-
-        form.addEventListener('submit', function (event) {
-            if (password.value !== confirmPassword.value) {
-                event.preventDefault();
-                alert('Las contraseñas no coinciden.');
-                confirmPassword.focus();
+<script>
+    // Toggle mostrar/ocultar contraseña
+    document.querySelectorAll('.password-toggle').forEach(toggle => {
+        toggle.addEventListener('click', () => {
+            const input = toggle.previousElementSibling;
+            const icon = toggle.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('bi-eye');
+                icon.classList.add('bi-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('bi-eye-slash');
+                icon.classList.add('bi-eye');
             }
         });
-    </script>
+    });
 
+    // Manejar el envío del formulario
+    document.getElementById('formRegistro').addEventListener('submit', async (e) => {
+        e.preventDefault();
 
-    <footer class="bg-light py-3">
-        <div class="container text-center">
-            <p>© 2025 Sistema de Farmacia. Todos los derechos reservados.</p>
-        </div>
-    </footer>
+        const errorDiv = document.getElementById('errorMessage');
+        errorDiv.classList.add('d-none');
+        errorDiv.textContent = '';
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        const form = e.target;
+
+        // Validación básica personalizada
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+
+        const contraseña = form.contraseña.value.trim();
+        const confirmarContraseña = form.confirmarContraseña.value.trim();
+        if (contraseña !== confirmarContraseña) {
+            errorDiv.textContent = 'Las contraseñas no coinciden.';
+            errorDiv.classList.remove('d-none');
+            return;
+        }
+        if (contraseña.length < 6) {
+            errorDiv.textContent = 'La contraseña debe tener al menos 6 caracteres.';
+            errorDiv.classList.remove('d-none');
+            return;
+        }
+
+        // Construir objeto JSON con los datos del formulario
+        const data = {
+            nombre: form.nombre.value.trim(),
+            apellido: form.apellido.value.trim(),
+            correo: form.correo.value.trim(),
+            direccion: form.direccion.value.trim(),
+            telefono: form.telefono.value.trim(),
+            fechaNacimiento: form.fechaNacimiento.value, // formato ISO yyyy-MM-dd
+            genero: form.genero.value,
+            contraseña: contraseña,
+            tipoSangre: form.tipoSangre.value.trim()
+        };
+
+        try {
+            const response = await fetch('/api/usuarios/crear-cliente', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (response.ok) {
+                // Registro exitoso
+                alert('Registro exitoso. Ahora puedes iniciar sesión.');
+                window.location.href = '/login';
+            } else {
+                // Mostrar error desde backend (si retorna json con mensaje)
+                const errData = await response.json().catch(() => null);
+                const msg = errData?.message || 'Error al registrar el usuario.';
+                errorDiv.textContent = msg;
+                errorDiv.classList.remove('d-none');
+            }
+        } catch (error) {
+            errorDiv.textContent = 'No se pudo conectar con el servidor. Intente más tarde.';
+            errorDiv.classList.remove('d-none');
+        }
+    });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 
 </html>

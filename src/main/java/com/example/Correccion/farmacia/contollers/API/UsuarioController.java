@@ -1,18 +1,26 @@
 package com.example.Correccion.farmacia.contollers.API;
 
+import com.example.Correccion.farmacia.dto.ProductoCarritoDTO;
 import com.example.Correccion.farmacia.dto.RegistroDTO;
+import com.example.Correccion.farmacia.entities.Compra;
 import com.example.Correccion.farmacia.entities.Paciente;
+import com.example.Correccion.farmacia.entities.Producto;
 import com.example.Correccion.farmacia.entities.Usuario;
 import com.example.Correccion.farmacia.repository.PacienteRepository;
+import com.example.Correccion.farmacia.repository.ProductoRepository;
 import com.example.Correccion.farmacia.repository.UsuarioRepository;
 import com.example.Correccion.farmacia.services.UsuarioService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -23,8 +31,11 @@ public class UsuarioController {
     private final UsuarioRepository usuarioRepository;
     private final PacienteRepository pacienteRepository; // Inyectar PacienteRepository
 
+
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private ProductoRepository productoRepository;
 
     // Constructor con inyección de dependencias
     @Autowired
@@ -55,12 +66,14 @@ public class UsuarioController {
         usuario.setGenero(request.getGenero());
         usuario.setTelefono(request.getTelefono());
 
+
         // Guardar usuario primero para generar ID
         Usuario guardado = usuarioRepository.save(usuario);
 
         // Crear paciente solo si el rol es cliente
         if ("cliente".equalsIgnoreCase(guardado.getRol())) {
             Paciente paciente = new Paciente();
+            Compra compra = new Compra();
             paciente.setUsuario(guardado);
             paciente.setDireccion(request.getDireccion());
             paciente.setFechaNacimiento(request.getFechaNacimiento());
@@ -120,4 +133,83 @@ public class UsuarioController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado.");
         }
     }
+
+    @GetMapping("/catalogo")
+    public String mostrarCatalogo(Model model, Principal principal) {
+        String username = principal.getName();
+
+        // Obtener usuario
+        Usuario usuario = usuarioRepository.findByCorreo(username).orElse(null); // O el método que tengas para buscar por correo
+
+        // Obtener productos del catálogo
+        List<Producto> productos = productoRepository.findAll();
+
+
+        // Obtener carrito lista desde el usuario y convertir a lista de DTO
+        List<ProductoCarritoDTO> carritoItems = productoCarritoDtoFromUsuario(usuario);
+
+        model.addAttribute("usuario", usuario);
+        model.addAttribute("productos", productos);
+        model.addAttribute("carritoItems", carritoItems);
+
+        return "catalogo"; // tu vista HTML
+    }
+
+    // Método auxiliar para convertir la lista de carrito del usuario a List<ProductoCarritoDTO>
+    private List<ProductoCarritoDTO> productoCarritoDtoFromUsuario(Usuario usuario) {
+        // Supongamos que carritolista es un JSON almacenado como String
+        String carritoJson = usuario.getCarritolista();
+
+        if (carritoJson == null || carritoJson.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            // Convertir JSON a lista de ProductoCarritoDTO
+            List<ProductoCarritoDTO> lista = mapper.readValue(carritoJson,
+                    mapper.getTypeFactory().constructCollectionType(List.class, ProductoCarritoDTO.class));
+            return lista;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
+    @GetMapping("/ver-carrito/{idUsuario}")
+    public ResponseEntity<List<ProductoCarritoDTO>> verCarritoConInfo(@PathVariable Long idUsuario) {
+        Usuario usuario = usuarioRepository.findById(idUsuario).orElse(null);
+        if (usuario == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        // Convertir el JSON a lista de ProductoCarritoDTO
+        List<ProductoCarritoDTO> carritoDTOs = productoCarritoDtoFromUsuario(usuario);
+
+        if (carritoDTOs.isEmpty()) {
+            return ResponseEntity.ok(new ArrayList<>());
+        }
+
+        // Traer datos reales de productos y rellenar los DTOs
+        List<Long> ids = carritoDTOs.stream().map(ProductoCarritoDTO::getId).toList();
+        List<Producto> productos = productoRepository.findAllById(ids);
+
+        // Mapear info del producto al DTO (nombre, precio, etc.)
+        for (ProductoCarritoDTO dto : carritoDTOs) {
+            productos.stream()
+                    .filter(p -> p.getIdMedicamento().equals(dto.getId()))
+                    .findFirst()
+                    .ifPresent(p -> {
+                        dto.setNombre(p.getNombre());
+                        dto.setPrecio(p.getPrecioUnitario());
+                        // Puedes asignar más campos si quieres
+                    });
+        }
+
+        return ResponseEntity.ok(carritoDTOs);
+    }
+
+
+
+
 }

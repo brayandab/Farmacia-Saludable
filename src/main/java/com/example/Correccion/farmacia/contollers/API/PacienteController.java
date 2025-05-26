@@ -1,6 +1,11 @@
 package com.example.Correccion.farmacia.contollers.API;
 
+import com.example.Correccion.farmacia.dto.UsuarioPacienteCompraDTO;
+import com.example.Correccion.farmacia.dto.UsuarioPacienteDTO;
+import com.example.Correccion.farmacia.entities.Compra;
 import com.example.Correccion.farmacia.entities.Paciente;
+import com.example.Correccion.farmacia.entities.Usuario;
+import com.example.Correccion.farmacia.repository.CompraRepository;
 import com.example.Correccion.farmacia.repository.PacienteRepository;
 import com.example.Correccion.farmacia.services.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +31,9 @@ public class PacienteController {
     @Autowired
     private UsuarioService usuarioService;
 
+    @Autowired
+    private CompraRepository compraRepository;
+
     //Con solo la ru del RequestMapping accede a este metodo que trae todos los paciente
     @GetMapping
     public ResponseEntity<List<Paciente>> listarTodos() {
@@ -50,4 +58,26 @@ public class PacienteController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Paciente no encontrado.");
         }
     }
+    //paciente detallado con compra y detalle de compra
+    @GetMapping("/{id}/detalle")
+    public ResponseEntity<UsuarioPacienteCompraDTO> obtenerDetallePaciente(@PathVariable Long id) {
+        Optional<Paciente> pacienteOptional = pacienteRepository.findById(id);
+
+        if (pacienteOptional.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Paciente paciente = pacienteOptional.get();
+        Usuario usuario = paciente.getUsuario();
+
+        List<Compra> compras = compraRepository.findByPaciente(paciente);
+
+        UsuarioPacienteCompraDTO dto = new UsuarioPacienteCompraDTO();
+        dto.setUsuario(usuario);
+
+
+        return ResponseEntity.ok(dto);
+    }
+
+
 }
