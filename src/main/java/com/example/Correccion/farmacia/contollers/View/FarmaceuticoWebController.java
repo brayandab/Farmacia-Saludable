@@ -1,6 +1,7 @@
 package com.example.Correccion.farmacia.contollers.View;
 
 import com.example.Correccion.farmacia.entities.Usuario;
+import com.example.Correccion.farmacia.repository.ProductoRepository;
 import com.example.Correccion.farmacia.services.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -17,6 +18,9 @@ public class FarmaceuticoWebController {
 
     @Autowired
     private UsuarioService usuarioService;
+    @Autowired
+    private ProductoRepository productoRepository; // O ProductoService si usas uno
+
 
     @GetMapping("/home")
     public String homeFarmaceutico(Model model, Principal principal) {
@@ -35,4 +39,11 @@ public class FarmaceuticoWebController {
 
         return "farmaceutico/home"; // Asegúrate de tener esta vista
     }
+
+    @GetMapping("/inventario")
+    public String mostrarInventario(Model model) {
+        model.addAttribute("productos", productoRepository.findAll());
+        return "farmaceutico/inventario";
+    }
+
 }
