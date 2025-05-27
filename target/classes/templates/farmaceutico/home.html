@@ -71,20 +71,7 @@
             </div>
         </div>
 
-        <div th:if="${not #lists.isEmpty(productos)}" class="row row-cols-1 row-cols-md-3 g-4">
-            <div th:each="producto : ${productos}" class="col">
-                <div class="card h-100">
-                    <img th:src="${producto.foto}" class="card-img-top" alt="Imagen del producto" loading="lazy"
-                         style="object-fit: cover; height: 200px;">
-                    <div class="card-body">
-                        <h5 class="card-title" th:text="${producto.nombre}">Nombre</h5>
-                        <p class="card-text" th:text="${producto.descripcion}">Descripción</p>
-                        <p class="card-text"><strong>Precio: </strong><span
-                                th:text="${'$' + producto.precioUnitario}">$0.00</span></p>
-                    </div>
-                </div>
-            </div>
-        </div>
+
     </div>
 </div>
 
