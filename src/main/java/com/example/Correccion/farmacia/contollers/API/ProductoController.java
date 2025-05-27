@@ -1,7 +1,5 @@
 package com.example.Correccion.farmacia.contollers.API;
 
-
-
 import com.example.Correccion.farmacia.entities.Producto;
 import com.example.Correccion.farmacia.repository.ProductoRepository;
 import io.swagger.annotations.Api;
@@ -10,7 +8,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.time.LocalDate;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/productos")
@@ -23,35 +23,23 @@ public class ProductoController {
         this.repository = repository;
     }
 
-    @ApiOperation(value = "Obtener todos los productos")
-    //Trae todos los productos
     @GetMapping
-    public List<Producto> obtenerTodos() {
+    public java.util.List<Producto> obtenerTodos() {
         return repository.findAll();
     }
 
-    @ApiOperation(value = "Crear un nuevo producto")
-    //Crea nuevos productos
     @PostMapping("/crear")
     public Producto guardar(@RequestBody Producto producto) {
         return repository.save(producto);
     }
 
-    //Busca el producto asociado
     @GetMapping("/{id}")
     public ResponseEntity<?> obtenerPorId(@PathVariable Long id) {
-        return repository.findById(id).<ResponseEntity<?>>map(producto ->
-                ResponseEntity.ok(producto)
-        ).orElseGet(() ->
-                ResponseEntity.status(HttpStatus.NOT_FOUND).body("Producto no encontrado.")
-        );
+        return repository.findById(id)
+                .<ResponseEntity<?>>map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body("Producto no encontrado."));
     }
 
-
-
-
-    //Actualiza el producto por id
-    @ApiOperation(value = "Actualizar un producto existente")
     @PutMapping("/{id}")
     public Producto actualizar(@PathVariable Long id, @RequestBody Producto producto) {
         return repository.findById(id)
@@ -68,8 +56,36 @@ public class ProductoController {
                 .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
     }
 
-    //Elimina el producto por id
-    @ApiOperation(value = "Eliminar un producto por su ID")
+    @PutMapping("/actualizar-stock-fecha/{id}")
+    public ResponseEntity<?> actualizarStockYFecha(@PathVariable Long id, @RequestBody Map<String, Object> updates) {
+        Optional<Producto> optionalProducto = repository.findById(id);
+        if (optionalProducto.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Producto no encontrado.");
+        }
+
+        Producto producto = optionalProducto.get();
+
+        try {
+            if (updates.containsKey("stock")) {
+                Object stockObj = updates.get("stock");
+                int stock = (stockObj instanceof Number)
+                        ? ((Number) stockObj).intValue()
+                        : Integer.parseInt(stockObj.toString());
+                producto.setStock(stock);
+            }
+
+            if (updates.containsKey("fechaVencimiento")) {
+                String fechaStr = updates.get("fechaVencimiento").toString();
+                producto.setFechaVencimiento(LocalDate.parse(fechaStr));
+            }
+
+            Producto actualizado = repository.save(producto);
+            return ResponseEntity.ok(actualizado);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Datos inválidos: " + e.getMessage());
+        }
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<String> eliminar(@PathVariable Long id) {
         if (repository.existsById(id)) {
@@ -79,5 +95,4 @@ public class ProductoController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Producto no encontrado.");
         }
     }
-
 }
