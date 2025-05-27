@@ -59,10 +59,22 @@
                             <p class="card-text"><strong>Precio: </strong><span
                                     th:text="${'$' + producto.precioUnitario}">$0.00</span></p>
 
-                            <button class="btn btn-primary w-100"
+                            <div th:if="${producto.stock > 0}">
+                                <button class="btn btn-primary w-100"
+                                        th:attr="onclick=|abrirModalCantidad(${producto.idMedicamento}, '${producto.nombre}', ${producto.precioUnitario})|">
+                                    Agregar al carrito
+                                </button>
+                            </div>
+                            <div th:unless="${producto.stock > 0}">
+                                <button class="btn btn-secondary w-100" disabled>
+                                    Sin stock
+                                </button>
+                            </div>
+
+                           <!-- <button class="btn btn-primary w-100"
                                 th:attr="onclick=|abrirModalCantidad(${producto.idMedicamento}, '${producto.nombre}', ${producto.precioUnitario})|">
                                 Agregar al carrito
-                            </button>
+                            </button>-->
                         </div>
                     </div>
                 </div>

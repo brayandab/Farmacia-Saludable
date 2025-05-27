@@ -2,12 +2,10 @@ package com.example.Correccion.farmacia.contollers.API;
 
 import com.example.Correccion.farmacia.dto.ProductoCarritoDTO;
 import com.example.Correccion.farmacia.dto.ProductosRequest;
-import com.example.Correccion.farmacia.entities.Compra;
-import com.example.Correccion.farmacia.entities.DetalleCompra;
-import com.example.Correccion.farmacia.entities.Paciente;
-import com.example.Correccion.farmacia.entities.Usuario;
+import com.example.Correccion.farmacia.entities.*;
 import com.example.Correccion.farmacia.repository.CompraRepository;
 import com.example.Correccion.farmacia.repository.PacienteRepository;
+import com.example.Correccion.farmacia.repository.ProductoRepository;
 import com.example.Correccion.farmacia.repository.UsuarioRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.stripe.Stripe;
@@ -33,13 +31,16 @@ public class PagoController {
     private final CompraRepository compraRepository;
     private final PacienteRepository pacienteRepository;
     private final UsuarioRepository usuarioRepository;
+    private final ProductoRepository productoRepository;
 
     public PagoController(CompraRepository compraRepository,
                           PacienteRepository pacienteRepository,
-                          UsuarioRepository usuarioRepository) {
+                          UsuarioRepository usuarioRepository,
+                          ProductoRepository productoRepository) {
         this.compraRepository = compraRepository;
         this.pacienteRepository = pacienteRepository;
         this.usuarioRepository = usuarioRepository;
+        this.productoRepository = productoRepository;
     }
 
     @PostConstruct
@@ -141,18 +142,22 @@ public class PagoController {
                     .sum();
             compra.setTotal(total);
 
-            // Agregar detalles usando el método auxiliar
-            for (ProductoCarritoDTO prod : productos) {
+            // 🔽 Aquí reemplazas tu antiguo for con este:
+            for (ProductoCarritoDTO prodDTO : productos) {
+                Optional<Producto> productoOpt = productoRepository.findById(prodDTO.getId());
+                Producto producto = productoOpt.get();
+                producto.setStock(producto.getStock() - prodDTO.getCantidad());
+                productoRepository.save(producto);
+
                 DetalleCompra detalle = new DetalleCompra();
-                detalle.setNombreProducto(prod.getNombre());
-                detalle.setCantidad(prod.getCantidad());
-                detalle.setPrecioUnitario(prod.getPrecio());
+                detalle.setNombreProducto(producto.getNombre());
+                detalle.setCantidad(prodDTO.getCantidad());
+                detalle.setPrecioUnitario(prodDTO.getPrecio());
 
                 compra.agregarDetalle(detalle);
             }
 
             compraRepository.save(compra);
-
             return ResponseEntity.ok("Compra guardada con éxito");
 
         } catch (Exception e) {
@@ -160,5 +165,6 @@ public class PagoController {
             return ResponseEntity.status(500).body("Error al guardar la compra: " + e.getMessage());
         }
     }
+
 
 }
