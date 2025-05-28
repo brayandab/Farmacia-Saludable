@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title>Farmacia - Catálogo Público</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="icon" type="image/png" href="/img/Fondo.png">
 </head>
 
 <body>
@@ -31,9 +32,10 @@
 </nav>
 
 <div class="container mt-4">
-    <h1>Catálogo de Productos</h1>
-    <p class="lead">Bienvenido a nuestra farmacia en línea. Aquí encontrarás nuestros productos.</p>
-
+    <header>
+        <h1>Catálogo de Productos</h1>
+        <p class="lead">Explora nuestros productos y encuentra lo que necesitas para cuidar tu salud.</p>
+    </header>
     <div class="row mt-4">
         <div th:if="${not #lists.isEmpty(productos)}" class="row row-cols-1 row-cols-md-3 g-4">
             <div th:each="producto, iterStat : ${productos}" th:if="${iterStat.index < 21}"
@@ -45,11 +47,10 @@
                         <h5 class="card-title" th:text="${producto.nombre}">Nombre del producto</h5>
                         <p class="card-text" th:text="${producto.descripcion}">Descripción del producto</p>
                         <p class="card-text"><strong>Precio: </strong><span
-                                th:text="${'$' + producto.precioUnitario}">$0.00</span></p>
+                                th:text="${producto.precioUnitario}">0</span></p>
 
                         <div th:if="${producto.stock > 0}">
-                            <button class="btn btn-primary w-100"
-                                    th:attr="onclick=|abrirModalCantidad(${producto.idMedicamento}, '${producto.nombre}', ${producto.precioUnitario})|">
+                            <button class="btn btn-primary w-100" onclick="window.location.href='/login'">
                                 Agregar al carrito
                             </button>
                         </div>
@@ -58,11 +59,6 @@
                                 Sin stock
                             </button>
                         </div>
-
-                        <!-- <button class="btn btn-primary w-100"
-                             th:attr="onclick=|abrirModalCantidad(${producto.idMedicamento}, '${producto.nombre}', ${producto.precioUnitario})|">
-                             Agregar al carrito
-                         </button>-->
                     </div>
                 </div>
             </div>
@@ -205,6 +201,25 @@
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const formatter = new Intl.NumberFormat('es-CO', {
+        style: 'currency',
+        currency: 'COP',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      });
+
+      document.querySelectorAll('.card-text span').forEach(span => {
+        let value = parseFloat(span.textContent.replace(/[^0-9.-]+/g,""));
+        if (!isNaN(value)) {
+          span.textContent = formatter.format(value);
+        }
+      });
+    });
+</script>
+
 </body>
 
 </html>
