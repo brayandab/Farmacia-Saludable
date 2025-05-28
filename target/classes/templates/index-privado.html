@@ -55,9 +55,11 @@
 
                             <div th:if="${producto.stock > 0}">
                                 <button class="btn btn-primary w-100"
-                                        th:attr="onclick=|abrirModalCantidad(${producto.idMedicamento}, '${producto.nombre}', ${producto.precioUnitario})|">
+                                        th:attr="onclick=|abrirModalCantidad(${producto.idMedicamento}, '${producto.nombre}', ${producto.precioUnitario}, ${producto.stock})|">
                                     Agregar al carrito
                                 </button>
+
+
                             </div>
                             <div th:unless="${producto.stock > 0}">
                                 <button class="btn btn-secondary w-100" disabled>
@@ -335,12 +337,16 @@
     </style>
 
     <script>
-        function abrirModalCantidad(id, nombre, precio) {
+        function abrirModalCantidad(id, nombre, precio, stock) {
             document.getElementById("productoId").value = id;
             document.getElementById("productoNombre").value = nombre;
             document.getElementById("productoPrecio").value = precio;
-            document.getElementById("nombreProducto").textContent = `Indique la cantidad de ${nombre} que desee agregar`;
             document.getElementById("inputCantidad").value = 1;
+            document.getElementById("inputCantidad").max = stock;
+            document.getElementById("inputCantidad").setAttribute("data-stock", stock);
+
+            document.getElementById("nombreProducto").textContent =
+                `Indique la cantidad de ${nombre} que desee agregar (Stock disponible: ${stock})`;
 
             const modal = new bootstrap.Modal(document.getElementById("modalCantidad"));
             modal.show();
@@ -351,57 +357,53 @@
             const nombre = document.getElementById("productoNombre").value;
             const precio = parseFloat(document.getElementById("productoPrecio").value);
             const cantidad = parseInt(document.getElementById("inputCantidad").value);
+            const stock = parseInt(document.getElementById("inputCantidad").getAttribute("data-stock"));
 
             if (isNaN(cantidad) || cantidad < 1) {
                 alert("Cantidad inválida.");
                 return;
             }
 
+            if (cantidad > stock) {
+                alert(`No hay suficiente stock de ${nombre}. Solo quedan ${stock} unidades.`);
+                return;
+            }
+
             let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
             const index = carrito.findIndex(p => p.id === id);
+            const cantidadEnCarrito = index !== -1 ? carrito[index].cantidad : 0;
+
+            if (cantidad + cantidadEnCarrito > stock) {
+                alert(`Ya tienes ${cantidadEnCarrito} en el carrito. Solo puedes agregar ${stock - cantidadEnCarrito} más.`);
+                return;
+            }
+
             if (index !== -1) {
                 carrito[index].cantidad += cantidad;
             } else {
                 carrito.push({ id, nombre, precio, cantidad });
             }
 
-            // Guardar en localStorage
             localStorage.setItem('carrito', JSON.stringify(carrito));
             actualizarContador();
 
-            // Ocultar el modal
             const modal = bootstrap.Modal.getInstance(document.getElementById("modalCantidad"));
             modal.hide();
 
-            // Mostrar mensaje
             alert(`${nombre} x${cantidad} agregado(s) al carrito.`);
 
-            // >>> Enviar el carrito actualizado al backend con fetch
             fetch("/api/pago/create-checkout-session", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ productos: carrito })
             })
             .then(response => {
-                if (!response.ok) {
-                    throw new Error("Error al crear sesión de pago");
-                }
+                if (!response.ok) throw new Error("Error al crear sesión de pago");
                 return response.json();
             })
-            .then(data => {
-                console.log("Sesión de pago creada:", data);
-                // Puedes guardar el ID de sesión o manejar la lógica según respuesta
-            })
-            .catch(error => {
-                console.error("Error:", error);
-            });
+            .then(data => console.log("Sesión de pago creada:", data))
+            .catch(error => console.error("Error:", error));
         });
-
-        function agregarAlCarrito(id, nombre, precio) {
-            abrirModalCantidad(id, nombre, precio);
-        }
 
         function actualizarContador() {
             let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
@@ -469,6 +471,7 @@
         const carritoModal = document.getElementById('carritoModal');
         carritoModal.addEventListener('show.bs.modal', mostrarContenidoCarrito);
     </script>
+
 
 
 </body>
