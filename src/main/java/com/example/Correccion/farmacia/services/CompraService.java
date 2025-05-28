@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Service
 public class CompraService {
@@ -18,13 +19,14 @@ public class CompraService {
     }
 
     public Compra guardarCompra(Compra compra) {
-        // Coloca la fecha actual si no está definida
         if (compra.getFechaCompra() == null) {
             compra.setFechaCompra(LocalDate.now());
         }
-
         return compraRepository.save(compra);
     }
 
-    // Puedes agregar más métodos para buscar o listar compras si quieres
+    // Nuevo método para obtener todas las compras
+    public List<Compra> obtenerTodasLasCompras() {
+        return compraRepository.findAll();
+    }
 }

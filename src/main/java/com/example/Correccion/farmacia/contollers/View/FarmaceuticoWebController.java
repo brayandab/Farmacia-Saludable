@@ -4,6 +4,8 @@ import com.example.Correccion.farmacia.entities.Usuario;
 import com.example.Correccion.farmacia.repository.ProductoRepository;
 import com.example.Correccion.farmacia.services.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,22 +25,28 @@ public class FarmaceuticoWebController {
 
 
     @GetMapping("/home")
-    public String homeFarmaceutico(Model model, Principal principal) {
-        // Obtener el email del usuario logueado
-        String email = principal.getName();
+    public String homeFarmaceutico(Model model, Authentication authentication) {
+        String email;
 
-        // Buscar el usuario por email
-        Usuario usuario = usuarioService.encontrarPorCorreo(email);
-
-        // Pasar el nombre del usuario al modelo
-        if (usuario != null) {
-            model.addAttribute("nombreUsuario", usuario.getNombre());
+        if (authentication.getPrincipal() instanceof OAuth2User oauthUser) {
+            email = oauthUser.getAttribute("email");
         } else {
-            model.addAttribute("nombreUsuario", "Desconocido");
+            email = authentication.getName();
         }
 
-        return "farmaceutico/home"; // Asegúrate de tener esta vista
+        Usuario usuario = usuarioService.encontrarPorCorreo(email);
+
+        if (usuario == null) {
+            usuario = new Usuario();
+            usuario.setNombre("Desconocido");
+        }
+
+        model.addAttribute("usuario", usuario);
+
+        return "farmaceutico/home";
     }
+
+
 
     @GetMapping("/inventario")
     public String mostrarInventario(Model model) {
