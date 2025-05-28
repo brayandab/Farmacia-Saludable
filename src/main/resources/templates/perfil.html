@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Perfil del Usuario</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f0f2f5;
+        }
+
+        .card {
+            margin-top: 60px;
+            border-radius: 20px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .editable-input {
+            display: none;
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .texto-normal {
+            padding: 6px 12px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            margin-bottom: 6px;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+        <a class="navbar-brand" href="/">Farmacia</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link [[${#httpServletRequest.requestURI == '/'} ? 'active' : '']]" href="/">Inicio</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link [[${#httpServletRequest.requestURI == '/api/productos'} ? 'active' : '']]" href="/api/productos">API Productos</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link [[${#httpServletRequest.requestURI == '/cliente/recetas'} ? 'active' : '']]" href="/cliente/recetas">Mis Recetas</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link [[${#httpServletRequest.requestURI == '/cliente/historial'} ? 'active' : '']]" href="/cliente/historial">Historial de Compras</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link [[${#httpServletRequest.requestURI == '/perfil'} ? 'active' : '']]" href="/perfil">Mi Perfil</a>
+                </li>
+            </ul>
+            <div class="d-flex">
+                <p class="text-white m-0 me-3">Hola, <span th:text="${usuario.nombre}">Usuario</span>!</p>
+                <a href="/logout" class="btn btn-light">Cerrar sesión</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card p-5">
+
+                <form th:action="@{/perfil}" th:object="${usuario}" method="post" id="perfilForm">
+                    <div class="row">
+                        <!-- IZQUIERDA -->
+                        <div class="col-md-6">
+
+                            <!-- NOMBRE -->
+                            <div class="mb-3">
+                                <label class="form-label"><strong>Nombre:</strong></label>
+                                <div class="texto-normal" th:text="*{nombre}"></div>
+                                <input type="text" th:field="*{nombre}" class="form-control editable-input"/>
+                            </div>
+
+                            <!-- CORREO (readonly) -->
+                            <div class="mb-3">
+                                <label class="form-label"><strong>Correo:</strong></label>
+                                <div class="texto-normal" th:text="*{correo}"></div>
+                                <input type="email" th:field="*{correo}" class="form-control editable-input" readonly/>
+                            </div>
+
+                            <!-- GÉNERO -->
+                            <div class="mb-3">
+                                <label class="form-label"><strong>Género:</strong></label>
+                                <div class="texto-normal" th:text="*{genero}"></div>
+                                <input type="text" th:field="*{genero}" class="form-control editable-input"/>
+                            </div>
+
+
+                            <!-- FECHA NACIMIENTO (Paciente) -->
+                            <div class="mb-3">
+                                <label class="form-label"><strong>Fecha de Nacimiento:</strong></label>
+
+                                <!-- Mostrar la fecha formateada solo si existe -->
+                                <div class="texto-normal"
+                                     th:if="${paciente != null and paciente.fechaNacimiento != null}"
+                                     th:text="${#dates.format(paciente.fechaNacimiento, 'yyyy-MM-dd')}"></div>
+
+                                <!-- Mostrar mensaje solo si fechaNacimiento es nula -->
+                                <div class="texto-normal" th:if="${paciente == null or paciente.fechaNacimiento == null}">No registrado</div>
+
+                                <!-- Siempre mostrar input para modificar o ingresar fecha -->
+                                <input type="date" th:field="*{paciente.fechaNacimiento}" class="form-control editable-input"/>
+                            </div>
+
+
+
+                        </div>
+
+                        <!-- DERECHA -->
+                        <div class="col-md-6">
+
+                            <!-- APELLIDO -->
+                            <div class="mb-3">
+                                <label class="form-label"><strong>Apellido:</strong></label>
+                                <div class="texto-normal" th:text="*{apellido}"></div>
+                                <input type="text" th:field="*{apellido}" class="form-control editable-input"/>
+                            </div>
+
+                            <!-- TELÉFONO -->
+                            <div class="mb-3">
+                                <label class="form-label"><strong>Teléfono:</strong></label>
+                                <div class="texto-normal" th:text="*{telefono}"></div>
+                                <input type="text" th:field="*{telefono}" class="form-control editable-input"/>
+                            </div>
+
+                            <!-- DIRECCIÓN (Paciente) -->
+                            <div class="mb-3">
+                                <label class="form-label"><strong>Dirección:</strong></label>
+                                <div class="texto-normal" th:text="${usuario.paciente != null} ? (${usuario.paciente.direccion}) : 'No registrado'"></div>
+                                <input type="text" th:field="*{paciente.direccion}" class="form-control editable-input"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BOTONES -->
+                    <div class="text-center mt-4">
+                        <button type="button" id="btnModificar" class="btn btn-primary">Modificar</button>
+                        <button type="submit" id="btnGuardar" class="btn btn-success editable-input">Guardar</button>
+                        <button type="button" id="btnCancelar" class="btn btn-secondary editable-input">Cancelar</button>
+                        <a href="/" class="btn btn-outline-secondary">Volver al Inicio</a>
+                    </div>
+                </form>
+
+                <div th:if="${mensaje != null}" class="alert alert-success mt-3" role="alert" th:text="${mensaje}"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const btnModificar = document.getElementById('btnModificar');
+    const btnGuardar = document.getElementById('btnGuardar');
+    const btnCancelar = document.getElementById('btnCancelar');
+    const textoNormales = document.querySelectorAll('.texto-normal');
+    const inputsEditables = document.querySelectorAll('.editable-input');
+
+    btnModificar.addEventListener('click', () => {
+        textoNormales.forEach(el => el.style.display = 'none');
+        inputsEditables.forEach(el => {
+            el.style.display = 'inline-block';
+            el.style.opacity = '1';
+            el.style.pointerEvents = 'auto';
+        });
+        btnModificar.style.display = 'none';
+    });
+
+    btnCancelar.addEventListener('click', () => {
+        textoNormales.forEach(el => el.style.display = 'block');
+        inputsEditables.forEach(el => {
+            el.style.display = 'none';
+            el.style.opacity = '0.6';
+            el.style.pointerEvents = 'none';
+        });
+        btnModificar.style.display = 'inline-block';
+    });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

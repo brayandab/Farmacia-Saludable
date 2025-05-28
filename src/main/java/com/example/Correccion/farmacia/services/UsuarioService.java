@@ -8,7 +8,12 @@ import com.example.Correccion.farmacia.repository.PacienteRepository;
 import com.example.Correccion.farmacia.repository.UsuarioRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
+
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -97,6 +102,46 @@ public class UsuarioService {
     public Usuario findByNombre(String nombre) {
         return usuarioRepo.findByNombre(nombre).orElse(null);
     }
+
+    public Usuario obtenerUsuarioActual() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated()) {
+            System.out.println("Authentication nulo o no autenticado");
+            return null;
+        }
+
+        Object principal = auth.getPrincipal();
+
+        System.out.println("Tipo de principal: " + principal.getClass().getName());
+
+        if (principal instanceof DefaultOidcUser) {
+            DefaultOidcUser oidcUser = (DefaultOidcUser) principal;
+            String email = (String) oidcUser.getAttributes().get("email");
+            System.out.println("Email extraído de OIDC: " + email);
+
+            return usuarioRepo.findByCorreo(email).orElse(null);
+
+        } else if (principal instanceof UserDetails) {
+            String email = ((UserDetails) principal).getUsername();
+            System.out.println("Email extraído de UserDetails: " + email);
+
+            return usuarioRepo.findByCorreo(email).orElse(null);
+        } else {
+            System.out.println("Principal NO es instancia esperada");
+            return null;
+        }
+    }
+
+
+
+    @Transactional
+    public Usuario guardar(Usuario usuario) {
+        if (usuario.getPaciente() != null) {
+            pacienteRepo.save(usuario.getPaciente());
+        }
+        return usuarioRepo.save(usuario);
+    }
+
 
 
 }

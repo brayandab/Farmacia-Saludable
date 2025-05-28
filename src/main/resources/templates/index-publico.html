@@ -8,189 +8,203 @@
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container">
-            <a class="navbar-brand" href="/">Farmacia</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="/">Inicio</a>
-                    </li>
-                    <li class="nav-item">
-                        <!--<a class="nav-link" href="/api/productos">API Productos</a>-->
-                    </li>
-                </ul>
-                <div class="d-flex">
-                    <a href="/login" class="btn btn-light">Iniciar Sesión</a>
-                </div>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+        <a class="navbar-brand" href="/">Farmacia</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link active" href="/">Inicio</a>
+                </li>
+                <li class="nav-item">
+                    <!--<a class="nav-link" href="/api/productos">API Productos</a>-->
+                </li>
+            </ul>
+            <div class="d-flex">
+                <a href="/login" class="btn btn-light">Iniciar Sesión</a>
             </div>
         </div>
-    </nav>
+    </div>
+</nav>
 
-    <div class="container mt-4">
-        <h1>Catálogo de Productos</h1>
-        <p class="lead">Bienvenido a nuestra farmacia en línea. Aquí encontrarás nuestros productos.</p>
+<div class="container mt-4">
+    <h1>Catálogo de Productos</h1>
+    <p class="lead">Bienvenido a nuestra farmacia en línea. Aquí encontrarás nuestros productos.</p>
 
-        <div class="row mt-4">
-            <div th:if="${not #lists.isEmpty(productos)}" class="row row-cols-1 row-cols-md-3 g-4">
-                <div th:each="producto : ${productos}" class="col">
-                    <div class="card h-100">
-                        <img th:src="${producto.foto}" class="card-img-top" alt="Imagen del producto" loading="lazy"
-                            style="object-fit: cover; height: 200px;">
-                        <div class="card-body">
-                            <h5 class="card-title" th:text="${producto.nombre}">Nombre</h5>
-                            <p class="card-text" th:text="${producto.descripcion}">Descripción</p>
-                            <p class="card-text"><strong>Precio: </strong><span
-                                    th:text="${'$' + producto.precioUnitario}">$0.00</span></p>
+    <div class="row mt-4">
+        <div th:if="${not #lists.isEmpty(productos)}" class="row row-cols-1 row-cols-md-3 g-4">
+            <div th:each="producto, iterStat : ${productos}" th:if="${iterStat.index < 21}"
+                 th:classappend="${iterStat.index == 9} ? ' d-flex justify-content-center' : ''" class="col">
+                <div class="card h-100">
+                    <img th:src="${producto.foto}" class="card-img-top" alt="Imagen del producto" loading="lazy"
+                         style="object-fit: cover; height: 200px;">
+                    <div class="card-body">
+                        <h5 class="card-title" th:text="${producto.nombre}">Nombre del producto</h5>
+                        <p class="card-text" th:text="${producto.descripcion}">Descripción del producto</p>
+                        <p class="card-text"><strong>Precio: </strong><span
+                                th:text="${'$' + producto.precioUnitario}">$0.00</span></p>
+
+                        <div th:if="${producto.stock > 0}">
+                            <button class="btn btn-primary w-100"
+                                    th:attr="onclick=|abrirModalCantidad(${producto.idMedicamento}, '${producto.nombre}', ${producto.precioUnitario})|">
+                                Agregar al carrito
+                            </button>
                         </div>
+                        <div th:unless="${producto.stock > 0}">
+                            <button class="btn btn-secondary w-100" disabled>
+                                Sin stock
+                            </button>
+                        </div>
+
+                        <!-- <button class="btn btn-primary w-100"
+                             th:attr="onclick=|abrirModalCantidad(${producto.idMedicamento}, '${producto.nombre}', ${producto.precioUnitario})|">
+                             Agregar al carrito
+                         </button>-->
                     </div>
                 </div>
             </div>
-
-            <div th:if="${#lists.isEmpty(productos)}" class="alert alert-info">
-                No hay productos disponibles en este momento.
-            </div>
-        </div>
-
-        <div class="mt-5 text-center">
-            <p>Para acceder a más funcionalidades, por favor inicia sesión:</p>
-            <a href="/login" class="btn btn-primary btn-lg">Iniciar Sesión</a>
         </div>
     </div>
 
-    <footer class="bg-light mt-5 py-3">
-        <div class="container text-center">
-            <p>© 2025 Sistema de Farmacia. Todos los derechos reservados.</p>
-        </div>
-    </footer>
+    <div class="mt-5 text-center">
+        <p>Para acceder a más funcionalidades, por favor inicia sesión:</p>
+        <a href="/login" class="btn btn-primary btn-lg">Iniciar Sesión</a>
+    </div>
+</div>
 
-    <style>
-        body {
-            background-color: #f0f2f5;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
+<footer class="bg-light mt-5 py-3">
+    <div class="container text-center">
+        <p>© 2025 Sistema de Farmacia. Todos los derechos reservados.</p>
+    </div>
+</footer>
 
-        .container {
-            flex: 1;
-            max-width: 960px;
-            margin-top: 40px;
-            margin-bottom: 40px;
-        }
+<style>
+    body {
+        background-color: #f0f2f5;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
 
-        h1 {
-            font-weight: 700;
-            color: #0d6efd;
-            text-align: center;
-            margin-bottom: 0.5rem;
-        }
+    .container {
+        flex: 1;
+        max-width: 960px;
+        margin-top: 40px;
+        margin-bottom: 40px;
+    }
 
-        .lead {
-            text-align: center;
-            color: #555;
-            margin-bottom: 2rem;
-        }
+    h1 {
+        font-weight: 700;
+        color: #0d6efd;
+        text-align: center;
+        margin-bottom: 0.5rem;
+    }
 
-        .card {
-            border-radius: 16px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-            background-color: #ffffff;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
+    .lead {
+        text-align: center;
+        color: #555;
+        margin-bottom: 2rem;
+    }
 
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
-        }
+    .card {
+        border-radius: 16px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        background-color: #ffffff;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
 
-        .card-img-top {
-            border-top-left-radius: 16px;
-            border-top-right-radius: 16px;
-            height: 200px;
-            object-fit: cover;
-        }
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+    }
 
-        .card-title {
-            font-weight: 600;
-            color: #333;
-        }
+    .card-img-top {
+        border-top-left-radius: 16px;
+        border-top-right-radius: 16px;
+        height: 200px;
+        object-fit: cover;
+    }
 
-        .card-text {
-            color: #666;
-        }
+    .card-title {
+        font-weight: 600;
+        color: #333;
+    }
 
-        .card-text strong {
-            color: #0d6efd;
-        }
+    .card-text {
+        color: #666;
+    }
 
-        .alert-info {
-            max-width: 400px;
-            margin: 3rem auto;
-            border-radius: 12px;
-            font-weight: 500;
-            color: #0d6efd;
-            background-color: #dbe9ff;
-        }
+    .card-text strong {
+        color: #0d6efd;
+    }
 
-        .btn-primary {
-            background: linear-gradient(135deg, #4a90e2, #357ABD);
-            border: none;
-            color: white;
-            font-weight: 700;
-            padding: 12px 30px;
-            border-radius: 12px;
-            box-shadow: 0 6px 12px rgba(69, 114, 186, 0.4);
-            transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
-        }
+    .alert-info {
+        max-width: 400px;
+        margin: 3rem auto;
+        border-radius: 12px;
+        font-weight: 500;
+        color: #0d6efd;
+        background-color: #dbe9ff;
+    }
 
-        .btn-primary:hover {
-            background: linear-gradient(135deg, #357ABD, #2a5eaa);
-            box-shadow: 0 8px 20px rgba(53, 122, 189, 0.6);
-            transform: translateY(-2px);
-            text-decoration: none;
-        }
+    .btn-primary {
+        background: linear-gradient(135deg, #4a90e2, #357ABD);
+        border: none;
+        color: white;
+        font-weight: 700;
+        padding: 12px 30px;
+        border-radius: 12px;
+        box-shadow: 0 6px 12px rgba(69, 114, 186, 0.4);
+        transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+    }
 
-        .btn-primary:active {
-            transform: translateY(1px);
-            box-shadow: 0 4px 8px rgba(53, 122, 189, 0.5);
-        }
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #357ABD, #2a5eaa);
+        box-shadow: 0 8px 20px rgba(53, 122, 189, 0.6);
+        transform: translateY(-2px);
+        text-decoration: none;
+    }
 
-        .navbar {
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
+    .btn-primary:active {
+        transform: translateY(1px);
+        box-shadow: 0 4px 8px rgba(53, 122, 189, 0.5);
+    }
 
-        .navbar-brand {
-            font-weight: 700;
-            font-size: 1.5rem;
-        }
+    .navbar {
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
 
-        .nav-link.active {
-            font-weight: 600;
-            color: #fff !important;
-        }
+    .navbar-brand {
+        font-weight: 700;
+        font-size: 1.5rem;
+    }
 
-        .btn-light {
-            border-radius: 12px;
-            font-weight: 600;
-            transition: background-color 0.3s ease;
-        }
+    .nav-link.active {
+        font-weight: 600;
+        color: #fff !important;
+    }
 
-        .btn-light:hover {
-            background-color: #e2e6ea;
-        }
+    .btn-light {
+        border-radius: 12px;
+        font-weight: 600;
+        transition: background-color 0.3s ease;
+    }
 
-        footer.bg-light {
-            box-shadow: inset 0 1px 3px rgb(0 0 0 / 0.1);
-            font-size: 0.9rem;
-            color: #666;
-        }
-    </style>
+    .btn-light:hover {
+        background-color: #e2e6ea;
+    }
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    footer.bg-light {
+        box-shadow: inset 0 1px 3px rgb(0 0 0 / 0.1);
+        font-size: 0.9rem;
+        color: #666;
+    }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

@@ -30,7 +30,7 @@
                         <a class="nav-link" href="/cliente/historial">Historial de Compras</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/cliente/perfil">Mi Perfil</a>
+                        <a class="nav-link" href="/perfil">Mi Perfil</a>
                     </li>
                 </ul>
                 <div class="d-flex">
@@ -48,7 +48,7 @@
 
         <div class="row mt-4">
             <div th:if="${not #lists.isEmpty(productos)}" class="row row-cols-1 row-cols-md-3 g-4">
-                <div th:each="producto, iterStat : ${productos}" th:if="${iterStat.index < 10}"
+                <div th:each="producto, iterStat : ${productos}" th:if="${iterStat.index < 21}"
                     th:classappend="${iterStat.index == 9} ? ' d-flex justify-content-center' : ''" class="col">
                     <div class="card h-100">
                         <img th:src="${producto.foto}" class="card-img-top" alt="Imagen del producto" loading="lazy"

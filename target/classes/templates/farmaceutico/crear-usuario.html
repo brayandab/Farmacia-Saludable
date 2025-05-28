@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Crear Farmacéutico</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-success">
+    <div class="container">
+        <a class="navbar-brand" href="/">Farmacia</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Inicio</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/farmaceutico/productos">Administrar Productos</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/farmaceutico/pedidos">Pedidos</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/farmaceutico/inventario">Inventario</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="/farmaceutico/crear">Crear Farmacéutico</a>
+                </li>
+            </ul>
+
+            <div class="d-flex">
+                <p class="text-white m-0 me-3">Hola, <span th:text="${usuario.nombre}">Farmacéutico</span>!</p>
+                <a href="/logout" class="btn btn-light">Cerrar sesión</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <h1>Crear Farmacéutico</h1>
+    <p class="lead">Completa el formulario para registrar un nuevo farmacéutico.</p>
+
+    <!-- Mensaje de éxito -->
+    <div th:if="${mensaje}" class="alert alert-success" role="alert" th:text="${mensaje}"></div>
+
+    <form action="/farmaceutico/crear" method="post" class="mt-4">
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="nombre" class="form-label">Nombre</label>
+                <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Cristian" required>
+            </div>
+            <div class="col-md-6">
+                <label for="apellido" class="form-label">Apellido</label>
+                <input type="text" class="form-control" id="apellido" name="apellido" placeholder="Dominguez" required>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="correo" class="form-label">Correo electrónico</label>
+            <input type="email" class="form-control" id="correo" name="correo" placeholder="cris.dominguez207@gmail.com" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="contrasena" class="form-label">Contraseña</label>
+            <input type="password" class="form-control" id="contrasena" name="contraseña" placeholder="********" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="rol" class="form-label">Rol</label>
+            <input type="text" class="form-control" id="rol" name="rol" value="farmaceutico" readonly>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="telefono" class="form-label">Teléfono</label>
+                <input type="tel" class="form-control" id="telefono" name="telefono" placeholder="3045313072" required>
+            </div>
+            <div class="col-md-6">
+                <label for="direccion" class="form-label">Dirección</label>
+                <input type="text" class="form-control" id="direccion" name="direccion" placeholder="Calle 10 #22-33" required>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="genero" class="form-label">Género</label>
+            <select class="form-select" id="genero" name="genero" required>
+                <option value="" selected>Seleccione...</option>
+                <option value="Masculino">Masculino</option>
+                <option value="Femenino">Femenino</option>
+                <option value="Otro">Otro</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-success">Crear Farmacéutico</button>
+    </form>
+</div>
+
+<footer class="bg-light mt-5 py-3">
+    <div class="container text-center">
+        <p>© 2025 Sistema de Farmacia. Todos los derechos reservados.</p>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
