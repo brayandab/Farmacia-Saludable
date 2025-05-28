@@ -19,6 +19,8 @@ public class CompraController {
     @Autowired
     private CompraRepository compraRepository;
 
+
+
     @Autowired
     private PacienteRepository pacienteRepository;
 

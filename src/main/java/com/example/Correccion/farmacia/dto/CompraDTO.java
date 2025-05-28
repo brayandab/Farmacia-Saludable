@@ -1,24 +1,42 @@
 package com.example.Correccion.farmacia.dto;
 
-import java.util.List;
+import java.time.LocalDate;
 
 public class CompraDTO {
-    private double total;
-    private List<ProductoCarritoDTO> productos;
+    private String nombreProducto;
+    private int cantidad;
+    private double precioUnitario;
+    private LocalDate fechaCompra;
 
-    public double getTotal() {
-        return total;
+    public String getNombreProducto() {
+        return nombreProducto;
     }
 
-    public void setTotal(double total) {
-        this.total = total;
+    public void setNombreProducto(String nombreProducto) {
+        this.nombreProducto = nombreProducto;
     }
 
-    public List<ProductoCarritoDTO> getProductos() {
-        return productos;
+    public int getCantidad() {
+        return cantidad;
     }
 
-    public void setProductos(List<ProductoCarritoDTO> productos) {
-        this.productos = productos;
+    public void setCantidad(int cantidad) {
+        this.cantidad = cantidad;
+    }
+
+    public double getPrecioUnitario() {
+        return precioUnitario;
+    }
+
+    public void setPrecioUnitario(double precioUnitario) {
+        this.precioUnitario = precioUnitario;
+    }
+
+    public LocalDate getFechaCompra() {
+        return fechaCompra;
+    }
+
+    public void setFechaCompra(LocalDate fechaCompra) {
+        this.fechaCompra = fechaCompra;
     }
 }
