@@ -12,6 +12,7 @@ import com.stripe.Stripe;
 import com.stripe.model.checkout.Session;
 import com.stripe.param.checkout.SessionCreateParams;
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -50,7 +51,8 @@ public class PagoController {
 
     // Crear sesión de pago en Stripe
     @PostMapping("/create-checkout-session")
-    public ResponseEntity<Map<String, String>> createCheckoutSession(@RequestBody ProductosRequest request) {
+    public ResponseEntity<Map<String, String>> createCheckoutSession(@RequestBody ProductosRequest request,
+                                                                     HttpServletRequest httpRequest) {
         try {
             List<ProductoCarritoDTO> productos = request.getProductos();
 
@@ -80,6 +82,29 @@ public class PagoController {
             usuario.setCarritolista(productosJson);
             usuarioRepository.save(usuario);
 
+            // Construir URL base dinámica tomando en cuenta headers de proxy (Cloud Run)
+            String scheme = Optional.ofNullable(httpRequest.getHeader("X-Forwarded-Proto")).orElse(httpRequest.getScheme());
+
+            String forwardedHost = httpRequest.getHeader("X-Forwarded-Host");
+            if (forwardedHost != null && forwardedHost.endsWith(":80")) {
+                forwardedHost = forwardedHost.substring(0, forwardedHost.length() - 3); // Elimina ":80"
+            }
+
+            String host = Optional.ofNullable(forwardedHost).orElse(httpRequest.getServerName());
+            int port = httpRequest.getServerPort();
+
+            boolean isCloudRun = forwardedHost != null;
+            String url="";
+            if (!isCloudRun) {
+                // Solo agrega puerto si no es estándar HTTP/HTTPS
+                if ((scheme.equals("http") && port != 80) || (scheme.equals("https") && port != 443)) {
+                    url= host;
+                }
+            }
+
+            String baseUrl = scheme + "://" + url;
+            System.out.println("LA URL QUE TIENE EN EL MOMENTO: " + baseUrl);
+
             // Crear items para Stripe
             List<SessionCreateParams.LineItem> lineItems = productos.stream().map(prod ->
                     SessionCreateParams.LineItem.builder()
@@ -98,8 +123,8 @@ public class PagoController {
 
             SessionCreateParams params = SessionCreateParams.builder()
                     .setMode(SessionCreateParams.Mode.PAYMENT)
-                    .setSuccessUrl("http://localhost:8080/success")
-                    .setCancelUrl("http://localhost:8080/cancel")
+                    .setSuccessUrl(baseUrl + "/success")
+                    .setCancelUrl(baseUrl + "/cancel")
                     .addAllLineItem(lineItems)
                     .build();
 
@@ -142,7 +167,6 @@ public class PagoController {
                     .sum();
             compra.setTotal(total);
 
-            // 🔽 Aquí reemplazas tu antiguo for con este:
             for (ProductoCarritoDTO prodDTO : productos) {
                 Optional<Producto> productoOpt = productoRepository.findById(prodDTO.getId());
                 Producto producto = productoOpt.get();
@@ -165,6 +189,4 @@ public class PagoController {
             return ResponseEntity.status(500).body("Error al guardar la compra: " + e.getMessage());
         }
     }
-
-
 }
